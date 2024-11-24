@@ -1,6 +1,8 @@
 const UserRoute = require("./UserRouter");
+
 const routes = (app) => {
-  app.get("/api/user", UserRoute);
+  // Sử dụng app.use() để gắn router
+  app.use("/api/user", UserRoute);
 };
 
 module.exports = routes;
