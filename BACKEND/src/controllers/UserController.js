@@ -70,5 +70,29 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser, loginUser };
+const updateUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const data = req.body;
 
+    if (!userId) {
+      return res
+        .status(200)
+        .json({ status: "ERR", message: "User ID is required." });
+    }
+
+    const response = await UserService.updateUser(userId, data);
+    return res.status(200).json(response);
+  } catch (error) {
+    // Xử lý lỗi trả về từ UserService
+    console.error("Error in updateUser:", error); // Log lỗi để debug
+
+    return res.status(error.status || 500).json({
+      status: "ERR",
+      message: error.message || "Internal Server Error.",
+      error: error.error || null,
+    });
+  }
+};
+
+module.exports = { createUser, loginUser, updateUser };

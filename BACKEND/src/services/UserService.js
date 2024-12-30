@@ -1,7 +1,6 @@
 const User = require("../models/UserModel");
 const bcrypt = require("bcrypt");
-const { generalAccessToken, generalRefreshToken } = require("./JwtService"); 
-
+const { generalAccessToken, generalRefreshToken } = require("./JwtService");
 
 const createUser = (newUser) => {
   return new Promise(async (resolve, reject) => {
@@ -60,18 +59,18 @@ const loginUser = (userLogin) => {
       }
       const access_token = await generalAccessToken({
         id: checkUser.id,
-        isAdmin: checkUser.isAdmin
-      })
+        isAdmin: checkUser.isAdmin,
+      });
       const refresh_token = await generalRefreshToken({
         id: checkUser.id,
-        isAdmin: checkUser.isAdmin
-      })
+        isAdmin: checkUser.isAdmin,
+      });
       {
         resolve({
           status: "OK",
           message: "Login successfully.",
           access_token,
-          refresh_token
+          refresh_token,
         });
       }
     } catch (e) {
@@ -79,4 +78,36 @@ const loginUser = (userLogin) => {
     }
   });
 };
-module.exports = { createUser, loginUser };
+
+const updateUser = (id, data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const checkUser = await User.findOne({ _id: id });
+
+      if (!checkUser) {
+        resolve({
+          status: "OK",
+          message: "The user is not defined.",
+        });
+        return;
+      }
+
+      const updatedUser = await User.findByIdAndUpdate(id, data, { new: true });
+
+      resolve({
+        status: "OK",
+        message: "Success",
+        data: updatedUser,
+      });
+    } catch (error) {
+      console.error("Error in updateUser Service:", error);
+      reject({
+        status: 500,
+        message: "Failed to update user.",
+        error: error,
+      });
+    }
+  });
+};
+
+module.exports = { createUser, loginUser, updateUser };

@@ -7,6 +7,9 @@ router.post("/sign-up", userController.createUser);
 
 router.post("/sign-in", userController.loginUser);
 
+router.put("/update-user/:id", userController.updateUser);
+
+
 
 // Phương thức GET để kiểm tra kết nối
 router.get("/", (req, res) => {

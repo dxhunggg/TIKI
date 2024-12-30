@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
   return res.send("hello");
 });
 
-app.use(bodyParser.json());
+app.use(express.json());
 
 routes(app);
 
