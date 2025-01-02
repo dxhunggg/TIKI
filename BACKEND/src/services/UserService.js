@@ -93,7 +93,7 @@ const updateUser = (id, data) => {
       }
 
       const updatedUser = await User.findByIdAndUpdate(id, data, { new: true });
-
+      console.log("Updating user with data:", data);
       resolve({
         status: "OK",
         message: "Success",
@@ -110,4 +110,80 @@ const updateUser = (id, data) => {
   });
 };
 
-module.exports = { createUser, loginUser, updateUser };
+const deleteUser = (id) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const checkUser = await User.findOne({ _id: id });
+
+      if (!checkUser) {
+        resolve({
+          status: "OK",
+          message: "The user is not defined.",
+        });
+        return;
+      }
+
+      await User.findByIdAndDelete(id);
+      resolve({
+        status: "OK",
+        message: "Delete user success",
+      });
+    } catch (error) {
+      reject({
+        status: 500,
+        message: "Failed to delete user.",
+        error: error,
+      });
+    }
+  });
+};
+
+const getAllUsers = (id) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const allUsers = await User.find()
+      resolve({
+        status: "OK",
+        message: "Success",
+        data: allUsers,
+      });
+    } catch (error) {
+      reject({
+        status: 500,
+        message: "Failed to delete user.",
+        error: error,
+      });
+    }
+  });
+};
+
+const getDetailsUser = (id) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const user = await User.findOne({ _id: id });
+
+      if (!user) {
+        resolve({
+          status: "OK",
+          message: "The user is not defined.",
+        });
+        return;
+      }
+
+      resolve({
+        status: "OK",
+        message: "Success",
+        data: user
+      });
+    } catch (error) {
+      reject({
+        status: 500,
+        message: "Failed to delete user.",
+        error: error,
+      });
+    }
+  });
+};
+
+
+module.exports = { createUser, loginUser, updateUser, deleteUser, getAllUsers, getDetailsUser };

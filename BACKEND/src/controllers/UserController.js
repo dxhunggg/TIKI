@@ -95,4 +95,59 @@ const updateUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser, loginUser, updateUser };
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    if (!userId) {
+      return res
+        .status(200)
+        .json({ status: "ERR", message: "User ID is required." });
+    }
+
+    const response = await UserService.deleteUser(userId);
+    return res.status(200).json(response);
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: "ERR",
+      message: error.message || "Internal Server Error.",
+      error: error.error || null,
+    });
+  }
+};
+
+const getAllUsers = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const response = await UserService.getAllUsers();
+    return res.status(200).json(response);
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: "ERR",
+      message: error.message || "Internal Server Error.",
+      error: error.error || null,
+    });
+  }
+};
+
+const getDetailsUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    if (!userId) {
+      return res
+        .status(200)
+        .json({ status: "ERR", message: "User ID is required." });
+    }
+
+    const response = await UserService.getDetailsUser(userId);
+    return res.status(200).json(response);
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: "ERR",
+      message: error.message || "Internal Server Error.",
+      error: error.error || null,
+    });
+  }
+};
+
+
+module.exports = { createUser, loginUser, updateUser, deleteUser, getAllUsers, getDetailsUser };
