@@ -186,4 +186,4 @@ const getDetailsUser = (id) => {
 };
 
 
-module.exports = { createUser, loginUser, updateUser, deleteUser, getAllUsers, getDetailsUser };
+module.exports = { createUser, loginUser, updateUser, deleteUser, getAllUsers, getDetailsUser};
