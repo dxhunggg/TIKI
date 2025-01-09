@@ -71,50 +71,97 @@ const updateProduct = (id, data) => {
 };
 
 const deleteProduct = (id) => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const checkProduct = await Product.findOne({ _id: id });
+  return new Promise(async (resolve, reject) => {
+    try {
+      const checkProduct = await Product.findOne({ _id: id });
 
-        if (!checkProduct) {
-          resolve({
-            status: "OK",
-            message: "The product is not defined.",
-          });
-        }
-
-        await Product.findByIdAndDelete(id);
+      if (!checkProduct) {
         resolve({
           status: "OK",
-          message: "Delete product success",
-        });
-      } catch (error) {
-        reject({
-          status: 500,
-          message: "Failed to delete product.",
-          error: error,
+          message: "The product is not defined.",
         });
       }
-    });
-  };
 
-const getAllProducts = () => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const allProducts = await Product.find()
+      await Product.findByIdAndDelete(id);
+      resolve({
+        status: "OK",
+        message: "Delete product success",
+      });
+    } catch (error) {
+      reject({
+        status: 500,
+        message: "Failed to delete product.",
+        error: error,
+      });
+    }
+  });
+};
+
+const getAllProducts = (limit, page, sort, filter) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const totalProducts = await Product.countDocuments();
+      if (filter) {
+        const label = filter[0];
+        const allProductsFilter = await Product.find({
+          [label]: { $regex: filter[1] },
+        })
+          .limit(limit)
+          .skip(page * limit);
         resolve({
           status: "OK",
           message: "Success",
-          data: allProducts,
+          data: allProductsFilter,
+          totalProducts: totalProducts,
+          currentPage: Number(page + 1),
+          totalPages: Math.ceil(totalProducts / limit),
         });
-      } catch (error) {
+      }
+      if (sort) {
+        const objectSort = {};
+        objectSort[sort[1]] = sort[0];
+        const allProductsSort = await Product.find()
+          .limit(limit)
+          .skip(page * limit)
+          .sort(objectSort);
+        resolve({
+          status: "OK",
+          message: "Success",
+          data: allProductsSort,
+          totalProducts: totalProducts,
+          currentPage: Number(page + 1),
+          totalPages: Math.ceil(totalProducts / limit),
+        });
+      }
+      const allProducts = await Product.find()
+        .limit(limit)
+        .skip(page * limit);
+      // .sort({name:sort});
+      resolve({
+        status: "OK",
+        message: "Success",
+        data: allProducts,
+        totalProducts: totalProducts,
+        currentPage: Number(page + 1),
+        totalPages: Math.ceil(totalProducts / limit),
+      });
+    } catch (error) {
+      if (error.name === "ValidationError") {
+        reject({
+          status: 400,
+          message: "Invalid input.",
+          error: error.message,
+        });
+      } else {
         reject({
           status: 500,
           message: "Failed to get all products.",
-          error: error,
+          error: error.message,
         });
       }
-    });
-  };
+    }
+  });
+};
 
 const getDetailsProduct = (id) => {
   return new Promise(async (resolve, reject) => {
@@ -142,4 +189,10 @@ const getDetailsProduct = (id) => {
     }
   });
 };
-module.exports = { createProduct, updateProduct, getDetailsProduct, deleteProduct, getAllProducts };
+module.exports = {
+  createProduct,
+  updateProduct,
+  getDetailsProduct,
+  deleteProduct,
+  getAllProducts,
+};
