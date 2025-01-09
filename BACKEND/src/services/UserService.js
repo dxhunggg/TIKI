@@ -138,7 +138,7 @@ const deleteUser = (id) => {
   });
 };
 
-const getAllUsers = (id) => {
+const getAllUsers = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const allUsers = await User.find()
@@ -150,7 +150,7 @@ const getAllUsers = (id) => {
     } catch (error) {
       reject({
         status: 500,
-        message: "Failed to delete user.",
+        message: "Failed to get all users.",
         error: error,
       });
     }
@@ -167,7 +167,6 @@ const getDetailsUser = (id) => {
           status: "OK",
           message: "The user is not defined.",
         });
-        return;
       }
 
       resolve({

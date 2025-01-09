@@ -119,7 +119,6 @@ const deleteUser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const userId = req.params.id;
     const response = await UserService.getAllUsers();
     return res.status(200).json(response);
   } catch (error) {
