@@ -9,9 +9,25 @@ import InputForm from "../../components/InputForm/InputForm";
 import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
 import imageLogo from "../../assets/images/logo-login.png";
 import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 
 const SignInPage = () => {
+  const navigate = useNavigate();
   const [isShowPassword, setIsShowPassword] = useState(false);
+  const handleNavigateSignUp = () => {
+    navigate("/sign-up");
+  };
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const handleOnChangeEmail = (value) => {
+    setEmail(value);
+  };
+  const handleOnChangePassword = (value) => {
+    setPassword(value);
+  };
+  const handleSignIn = () => {
+    console.log("sign in", email, password);
+  };
   return (
     <div
       style={{
@@ -38,9 +54,12 @@ const SignInPage = () => {
           <InputForm
             style={{ marginBottom: "10px" }}
             placeholder="abc@gmail.com"
+            value={email}
+            onChange={handleOnChangeEmail}
           />
           <div style={{ position: "relative" }}>
             <span
+              onClick={() => setIsShowPassword(!isShowPassword)}
               style={{
                 zIndex: 10,
                 position: "absolute",
@@ -53,9 +72,13 @@ const SignInPage = () => {
             <InputForm
               placeholder="password"
               type={isShowPassword ? "text" : "password"}
+              value={password}
+              onChange={handleOnChangePassword}
             />
           </div>
           <ButtonComponent
+            disabled={!email.length || !password.length}
+            onClick={handleSignIn}
             size="40"
             styleButton={{
               background: "rgb(255,57,69)",
@@ -77,7 +100,9 @@ const SignInPage = () => {
           </p>
           <p>
             Chưa có tài khoản?{" "}
-            <WrapperTextLight>Tạo tài khoản</WrapperTextLight>
+            <WrapperTextLight onClick={handleNavigateSignUp}>
+              Tạo tài khoản
+            </WrapperTextLight>
           </p>
         </WrapperContainerLeft>
         <WrapperContainerRight>
