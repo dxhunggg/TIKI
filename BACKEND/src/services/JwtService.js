@@ -20,11 +20,11 @@ const refreshTokenJwtService = (token) => {
     try {
       console.log("Received token:", token);
 
-      jwt.verify(token, process.env.REFRESH_TOKEN,  (err, decoded) => {
+      jwt.verify(token, process.env.REFRESH_TOKEN, (err, decoded) => {
         if (err) {
           console.error("Token verification error:", err.message);
           return resolve({
-            status: "ERROR",
+            status: "ERR",
             message: "Authentication failed. Token is invalid or has expired.",
           });
         }
@@ -45,7 +45,7 @@ const refreshTokenJwtService = (token) => {
     } catch (e) {
       console.error("Unexpected error:", e.message);
       return reject({
-        status: "ERROR",
+        status: "ERR",
         message: "An error occurred while refreshing the token.",
         error: e,
       });

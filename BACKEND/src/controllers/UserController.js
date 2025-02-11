@@ -1,14 +1,13 @@
 const UserService = require("../services/UserService");
 const JwtService = require("../services/JwtService");
 
-
 const createUser = async (req, res) => {
   try {
     console.log(req.body);
     const { name, email, password, confirmPassword, phone } = req.body;
     const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
     const isCheckEmail = reg.test(email);
-    if (!name || !email || !password || !confirmPassword || !phone) {
+    if (!email || !password || !confirmPassword) {
       return res
         .status(200)
         .json({ status: "ERR", message: "All fields are required." });
@@ -43,10 +42,10 @@ const createUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     console.log(req.body);
-    const { name, email, password, confirmPassword, phone } = req.body;
+    const { email, password } = req.body;
     const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
     const isCheckEmail = reg.test(email);
-    if (!name || !email || !password || !confirmPassword || !phone) {
+    if (!email || !password) {
       return res
         .status(200)
         .json({ status: "ERR", message: "All fields are required." });
@@ -54,16 +53,10 @@ const loginUser = async (req, res) => {
       return res
         .status(200)
         .json({ status: "ERR", message: "Invalid email format!" });
-    } else if (password != confirmPassword) {
-      return res
-        .status(200)
-        .json({ status: "ERR", message: "Passwords do not match." });
     }
-
     const response = await UserService.loginUser(req.body);
     return res.status(200).json(response);
   } catch (error) {
-    // Xử lý lỗi trả về từ UserService
     return res.status(error.status || 500).json({
       status: "ERR",
       message: error.message || "Internal Server Error.",
@@ -152,7 +145,7 @@ const getDetailsUser = async (req, res) => {
 
 const refreshToken = async (req, res) => {
   try {
-    const token = req.headers.token.split(' ')[1]
+    const token = req.headers.token.split(" ")[1];
     if (!token) {
       return res
         .status(200)
@@ -170,5 +163,12 @@ const refreshToken = async (req, res) => {
   }
 };
 
-
-module.exports = { createUser, loginUser, updateUser, deleteUser, getAllUsers, getDetailsUser, refreshToken };
+module.exports = {
+  createUser,
+  loginUser,
+  updateUser,
+  deleteUser,
+  getAllUsers,
+  getDetailsUser,
+  refreshToken,
+};
