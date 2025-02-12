@@ -3,7 +3,6 @@ const JwtService = require("../services/JwtService");
 
 const createUser = async (req, res) => {
   try {
-    console.log(req.body);
     const { name, email, password, confirmPassword, phone } = req.body;
     const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
     const isCheckEmail = reg.test(email);
@@ -55,7 +54,12 @@ const loginUser = async (req, res) => {
         .json({ status: "ERR", message: "Invalid email format!" });
     }
     const response = await UserService.loginUser(req.body);
-    return res.status(200).json(response);
+    const {refresh_token, ...newResponse} = response;
+    res.cookie('refresh_token', refresh_token, {
+      HttpOnly: true,
+      Secure: true,
+    })
+    return res.status(200).json(newResponse);
   } catch (error) {
     return res.status(error.status || 500).json({
       status: "ERR",
@@ -145,7 +149,7 @@ const getDetailsUser = async (req, res) => {
 
 const refreshToken = async (req, res) => {
   try {
-    const token = req.headers.token.split(" ")[1];
+    const token = req.cookies.refresh_token
     if (!token) {
       return res
         .status(200)

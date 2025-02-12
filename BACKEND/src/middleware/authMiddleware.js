@@ -53,8 +53,8 @@ const authUserMiddleware = (req, res, next) => {
           .status(401)
           .json({ message: "Invalid token", status: "ERR" });
       }
-
-      if (user?.isAdmin || payload?.id === userId) {
+      console.log('user',user)
+      if (user?.isAdmin || user?.id === userId) {
         next();
       } else {
         return res

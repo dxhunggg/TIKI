@@ -18,7 +18,6 @@ const generalRefreshToken = async (payload) => {
 const refreshTokenJwtService = (token) => {
   return new Promise((resolve, reject) => {
     try {
-      console.log("Received token:", token);
 
       jwt.verify(token, process.env.REFRESH_TOKEN, (err, decoded) => {
         if (err) {
@@ -29,7 +28,6 @@ const refreshTokenJwtService = (token) => {
           });
         }
 
-        console.log("Decoded token data:", decoded);
 
         const access_token = generalAccessToken({
           id: decoded?.id,

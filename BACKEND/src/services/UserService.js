@@ -52,7 +52,7 @@ const loginUser = (userLogin) => {
       const comparePassword = bcrypt.compareSync(password, checkUser.password);
       if (!comparePassword) {
         resolve({
-          status: "OK",
+          status: "ERR",
           message: "Incorrect password.",
         });
         return;
@@ -141,7 +141,7 @@ const deleteUser = (id) => {
 const getAllUsers = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const allUsers = await User.find()
+      const allUsers = await User.find();
       resolve({
         status: "OK",
         message: "Success",
@@ -172,7 +172,7 @@ const getDetailsUser = (id) => {
       resolve({
         status: "OK",
         message: "Success",
-        data: user
+        data: user,
       });
     } catch (error) {
       reject({
@@ -184,5 +184,11 @@ const getDetailsUser = (id) => {
   });
 };
 
-
-module.exports = { createUser, loginUser, updateUser, deleteUser, getAllUsers, getDetailsUser};
+module.exports = {
+  createUser,
+  loginUser,
+  updateUser,
+  deleteUser,
+  getAllUsers,
+  getDetailsUser,
+};
