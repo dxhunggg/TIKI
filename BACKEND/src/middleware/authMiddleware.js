@@ -5,7 +5,6 @@ dotenv.config();
 
 const authMiddleware = (req, res, next) => {
   try {
-    console.log("checkToken", req.headers.token);
     const token = req.headers.token?.split(" ")[1];
     if (!token) {
       return res
@@ -37,7 +36,6 @@ const authMiddleware = (req, res, next) => {
 
 const authUserMiddleware = (req, res, next) => {
   try {
-    console.log("checkToken", req.headers.token);
     const token = req.headers.token?.split(" ")[1];
     const userId = req.params.id
 

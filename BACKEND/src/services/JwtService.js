@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 
 const generalAccessToken = async (payload) => {
   const access_token = jwt.sign(payload, process.env.ACCESS_TOKEN, {
-    expiresIn: "30s",
+    expiresIn: "10s",
   });
   return access_token;
 };
@@ -18,8 +18,7 @@ const generalRefreshToken = async (payload) => {
 const refreshTokenJwtService = (token) => {
   return new Promise((resolve, reject) => {
     try {
-
-      jwt.verify(token, process.env.REFRESH_TOKEN, (err, decoded) => {
+      jwt.verify(token, process.env.REFRESH_TOKEN, async (err, decoded) => {
         if (err) {
           console.error("Token verification error:", err.message);
           return resolve({
@@ -27,13 +26,12 @@ const refreshTokenJwtService = (token) => {
             message: "Authentication failed. Token is invalid or has expired.",
           });
         }
-
-
-        const access_token = generalAccessToken({
+        // Chờ kết quả của generalAccessToken
+        const access_token = await generalAccessToken({
           id: decoded?.id,
           isAdmin: decoded?.isAdmin,
         });
-
+        console.log(access_token);
         return resolve({
           status: "OK",
           message: "Token refreshed successfully.",

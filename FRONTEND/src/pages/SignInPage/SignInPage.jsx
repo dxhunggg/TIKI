@@ -29,9 +29,8 @@ const SignInPage = () => {
     if (isSuccess) {
       message.success("Login successfully!");
       navigate("/");
-      localStorage.setItem("access_token", data.access_token);
+      localStorage.setItem("access_token", JSON.stringify(data?.access_token));
       const decoded = jwtDecode(data?.access_token);
-      console.log('decoded', decoded);
       if (decoded?.id) {
         handleGetDetailsUser(decoded?.id, data?.access_token);
       }
@@ -41,9 +40,13 @@ const SignInPage = () => {
   }, [isSuccess, isError]);
 
   const handleGetDetailsUser = async (id, token) => {
-    const res = await UserService.getDetailsUser(id, token);
-    dispatch(updateUser({ ...res?.data, access_token: token }));
-    console.log("res", res);
+    try {
+      const res = await UserService.getDetailsUser(id, token);
+      dispatch(updateUser({ ...res.data, access_token: token }));
+      console.log("User info:", res);
+    } catch (err) {
+      console.error("Lỗi khi lấy thông tin user:", err);
+    }
   };
 
   const handleNavigateSignUp = () => {

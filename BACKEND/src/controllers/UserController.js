@@ -40,7 +40,6 @@ const createUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   try {
-    console.log(req.body);
     const { email, password } = req.body;
     const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
     const isCheckEmail = reg.test(email);
@@ -54,11 +53,13 @@ const loginUser = async (req, res) => {
         .json({ status: "ERR", message: "Invalid email format!" });
     }
     const response = await UserService.loginUser(req.body);
-    const {refresh_token, ...newResponse} = response;
-    res.cookie('refresh_token', refresh_token, {
-      HttpOnly: true,
-      Secure: true,
-    })
+    const { refresh_token, ...newResponse } = response;
+    res.cookie("refresh_token", refresh_token, {
+      httpOnly: true,
+      secure: false, // Set true if using HTTPS
+      sameSite: "lax",
+      path: "/",
+    });
     return res.status(200).json(newResponse);
   } catch (error) {
     return res.status(error.status || 500).json({
@@ -83,8 +84,7 @@ const updateUser = async (req, res) => {
     const response = await UserService.updateUser(userId, data);
     return res.status(200).json(response);
   } catch (error) {
-    // Xử lý lỗi trả về từ UserService
-    console.error("Error in updateUser:", error); // Log lỗi để debug
+    console.error("Error in updateUser:", error);
 
     return res.status(error.status || 500).json({
       status: "ERR",
@@ -149,14 +149,14 @@ const getDetailsUser = async (req, res) => {
 
 const refreshToken = async (req, res) => {
   try {
-    const token = req.cookies.refresh_token
+    const token = req.cookies.refresh_token;
     if (!token) {
       return res
         .status(200)
         .json({ status: "ERR", message: "Token is required." });
     }
-
     const response = await JwtService.refreshTokenJwtService(token);
+
     return res.status(200).json(response);
   } catch (error) {
     return res.status(error.status || 500).json({
