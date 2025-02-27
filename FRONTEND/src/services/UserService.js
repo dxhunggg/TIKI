@@ -6,7 +6,7 @@ export const axiosJWT = axios.create();
 
 export const loginUser = async (data) => {
   const res = await axios.post(`${apiUrl}/user/sign-in`, data, {
-    withCredentials: true
+    withCredentials: true,
   });
   return res.data;
 };
@@ -32,6 +32,15 @@ export const refreshToken = async () => {
       {},
       { withCredentials: true }
     );
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const logoutUser = async () => {
+  try {
+    const res = await axios.post(`${apiUrl}/user/log-out`);
     return res.data;
   } catch (error) {
     throw error;
