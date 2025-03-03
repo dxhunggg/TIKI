@@ -23,7 +23,10 @@ const App = () => {
         try {
           const data = await UserService.refreshToken();
           if (data?.access_token) {
-            localStorage.setItem("access_token", JSON.stringify(data.access_token));
+            localStorage.setItem(
+              "access_token",
+              JSON.stringify(data.access_token)
+            );
             handleGetDetailsUser(decoded.id, data.access_token);
           } else {
             console.log("⚠️ Không nhận được access_token mới!");
@@ -54,7 +57,7 @@ const App = () => {
       let storageData = localStorage.getItem("access_token");
       if (storageData) {
         storageData = JSON.parse(storageData);
-        config.headers["Authorization"] = `Bearer ${storageData}`;
+        config.headers["token"] = `Bearer ${storageData}`;
       }
 
       const currentTime = Math.floor(Date.now() / 1000);
@@ -71,7 +74,7 @@ const App = () => {
               "access_token",
               JSON.stringify(data.access_token)
             );
-            config.headers["Authorization"] = `Bearer ${data.access_token}`;
+            config.headers["token"] = `Bearer ${data.access_token}`;
           } else {
             console.log("⚠️ Không nhận được access_token mới!");
           }

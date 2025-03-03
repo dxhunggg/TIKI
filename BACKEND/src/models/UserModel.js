@@ -7,11 +7,13 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     isAdmin: { type: Boolean, default: false, required: true },
     phone: { type: Number },
-    access_token: { type: String},
-    refresh_token: { type: String},
+    access_token: { type: String },
+    refresh_token: { type: String },
+    address: { type: String },
+    avatar: { type: String },
   },
   {
-    timestamps: true, 
+    timestamps: true,
   }
 );
 

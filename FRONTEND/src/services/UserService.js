@@ -17,7 +17,7 @@ export const signupUser = async (data) => {
 };
 
 export const getDetailsUser = async (id, access_token) => {
-  const res = await axios.get(`${apiUrl}/user/get-details/${id}`, {
+  const res = await axiosJWT.get(`${apiUrl}/user/get-details/${id}`, {
     headers: {
       token: `Bearer ${access_token}`,
     },
@@ -41,6 +41,19 @@ export const refreshToken = async () => {
 export const logoutUser = async () => {
   try {
     const res = await axios.post(`${apiUrl}/user/log-out`);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateUser = async (id, data, access_token) => {
+  try {
+    const res = await axiosJWT.put(`${apiUrl}/user/update-user/${id}`, data, {
+      headers: {
+        token: `Bearer ${access_token}`,
+      },
+    });
     return res.data;
   } catch (error) {
     throw error;
