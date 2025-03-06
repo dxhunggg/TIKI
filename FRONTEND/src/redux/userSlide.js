@@ -8,6 +8,7 @@ const initialState = {
   avatar: "",
   access_token: "",
   id: "",
+  isAdmin: false,
 };
 
 const userSlide = createSlice({
@@ -23,6 +24,7 @@ const userSlide = createSlice({
         address = "",
         avatar = "",
         _id = "",
+        isAdmin,
       } = action.payload;
       state.name = name;
       state.email = email;
@@ -31,6 +33,7 @@ const userSlide = createSlice({
       state.avatar = avatar;
       state.id = _id;
       state.access_token = access_token;
+      state.isAdmin = isAdmin;
     },
     resetUser: (state) => {
       state.name = "";
@@ -40,6 +43,7 @@ const userSlide = createSlice({
       state.avatar = "";
       state._id = "";
       state.access_token = "";
+      state.isAdmin = false;
     },
   },
 });

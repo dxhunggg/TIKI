@@ -12,8 +12,20 @@ import slide3 from "../../assets/images/slide3.png";
 import CardComponent from "../../components/CardComponent/CardComponent";
 import NavBarComponent from "../../components/NavBarComponent/NavBarComponent";
 import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
+import { useQuery } from "@tanstack/react-query";
+import * as ProductService from "../../services/ProductService";
 const HomePage = () => {
   const arr = ["TV", "Tủ lạnh", "Laptop"];
+  const fetchProductAll = async () => {
+    const res = await ProductService.getAllProduct();
+    return res;
+  };
+  const { isLoading, data: products } = useQuery({
+    queryKey: ["product"],
+    queryFn: fetchProductAll,
+    retry: 3,
+    retryDelay: 1000,
+  });
   return (
     <>
       <div style={{ width: "1270px", margin: "0 auto" }}>
@@ -37,11 +49,22 @@ const HomePage = () => {
         >
           <SliderComponent arrImages={[slide1, slide2, slide3]} />
           <WrapperProducts>
-            <CardComponent />
-            <CardComponent />
-            <CardComponent />
-            <CardComponent />
-            <CardComponent />
+            {products?.data?.map((product) => {
+              return (
+                <CardComponent
+                  key={product.id}
+                  countInStock={product.countInStock}
+                  description={product.description}
+                  image={product.image}
+                  name={product.name}
+                  price={product.price}
+                  rating={product.rating}
+                  type={product.type}
+                  sold={product.sold}
+                  discount={product.discount}
+                />
+              );
+            })}
           </WrapperProducts>
           <div
             style={{
