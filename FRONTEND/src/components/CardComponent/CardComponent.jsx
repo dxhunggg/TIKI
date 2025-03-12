@@ -1,6 +1,5 @@
 import React from "react";
 import { Card } from "antd";
-import Meta from "antd/lib/card/Meta";
 import {
   StyleNameProduct,
   WrapperCardStyle,
@@ -10,6 +9,7 @@ import {
   WrapperStyleTextSell,
 } from "./style";
 import { StarFilled } from "@ant-design/icons";
+
 const CardComponent = (props) => {
   const {
     countInStock,
@@ -22,14 +22,17 @@ const CardComponent = (props) => {
     sold,
     discount,
   } = props;
+  
   return (
     <WrapperCardStyle
       hoverable
       style={{
         width: 200,
       }}
-      headStyle={{ width: "200px", height: "200px" }}
-      bodyStyle={{ padding: "10px" }}
+      styles={{  // Thay đổi từ headStyle và bodyStyle sang styles
+        header: { width: "200px", height: "200px" },
+        body: { padding: "10px" }
+      }}
       cover={
         <img
           alt="example"

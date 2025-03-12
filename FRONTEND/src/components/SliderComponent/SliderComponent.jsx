@@ -1,6 +1,7 @@
 import React from "react";
 import { Image } from "antd";
 import { WrapperSliderStyle } from "./style";
+
 const SliderComponent = ({ arrImages }) => {
   const settings = {
     dots: true,
@@ -9,19 +10,21 @@ const SliderComponent = ({ arrImages }) => {
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 1000,
+    autoplaySpeed: 2000,
   };
 
   return (
     <WrapperSliderStyle {...settings}>
       {arrImages.map((image, index) => (
-        <Image
-          key={index}
-          src={image}
-          alt={`Slide ${index + 1}`}
-          preview={false}
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-        />
+        <div key={index}>
+          <Image
+            src={image}
+            alt={`Slide ${index + 1}`}
+            preview={false}
+            width={1000}
+            height={274}
+          />
+        </div>
       ))}
     </WrapperSliderStyle>
   );

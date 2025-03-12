@@ -42,4 +42,7 @@ export const WrapperUploadFile = styled(Upload)`
   & .ant-upload-list-item-container {
     display: none;
   }
+  & .ant-upload-list .ant-upload-list-text {
+    display: none;
+  }
 `;

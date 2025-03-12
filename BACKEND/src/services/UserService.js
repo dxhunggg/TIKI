@@ -16,7 +16,6 @@ const createUser = (newUser) => {
         });
       }
       const hash = bcrypt.hashSync(password, 10);
-      console.log(hash);
       const createdUser = await User.create({
         name,
         email,
@@ -93,7 +92,6 @@ const updateUser = (id, data) => {
       }
 
       const updatedUser = await User.findByIdAndUpdate(id, data, { new: true });
-      console.log("Updating user with data:", data);
       resolve({
         status: "OK",
         message: "Success",

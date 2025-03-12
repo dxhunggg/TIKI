@@ -1,10 +1,19 @@
 import styled from "styled-components";
-import Slider from "react-slick"; // Import Slider từ react-slick
+import Slider from "react-slick";
 
 export const WrapperSliderStyle = styled(Slider)`
-  width: 100%;
-  max-width: 1000px; /* Đặt chiều rộng tối đa cho slider */
-  margin: 0 auto;
+  width: 1000px;
+
+  .slick-slide {
+    width: 1000px;
+    
+    img {
+      width: 1000px;
+      height: 274px;
+      margin: 0 auto;
+    }
+  }
+  
   & .slick-arrow.slick-prev {
     left: 12px;
     top: 50%;
@@ -25,24 +34,20 @@ export const WrapperSliderStyle = styled(Slider)`
   }
   & .slick-dots {
     z-index: 10;
-    bottom: -2px !important;
+    bottom: 10px !important;
     li {
       button {
         &::before {
-          color: rgba(255, 255, 255, 0.5);
+          color: white !important;
         }
       }
     }
     li.slick-active {
       button {
         &::before {
-          color: #fff;
+          color: #fff !important;
         }
       }
-    }
-    .slick-slide {
-      display: flex !important;
-      justify-content: center;
     }
   }
 `;

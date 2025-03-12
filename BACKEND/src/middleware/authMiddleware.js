@@ -37,7 +37,7 @@ const authMiddleware = (req, res, next) => {
 const authUserMiddleware = (req, res, next) => {
   try {
     const token = req.headers.token?.split(" ")[1];
-    const userId = req.params.id
+    const userId = req.params.id;
 
     if (!token) {
       return res
@@ -51,7 +51,6 @@ const authUserMiddleware = (req, res, next) => {
           .status(401)
           .json({ message: "Invalid token", status: "ERR" });
       }
-      console.log('user',user)
       if (user?.isAdmin || user?.id === userId) {
         next();
       } else {

@@ -10,8 +10,6 @@ import slide1 from "../../assets/images/slide1.png";
 import slide2 from "../../assets/images/slide2.png";
 import slide3 from "../../assets/images/slide3.png";
 import CardComponent from "../../components/CardComponent/CardComponent";
-import NavBarComponent from "../../components/NavBarComponent/NavBarComponent";
-import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
 import { useQuery } from "@tanstack/react-query";
 import * as ProductService from "../../services/ProductService";
 const HomePage = () => {
@@ -35,24 +33,28 @@ const HomePage = () => {
           })}
         </WrapperTypeProduct>
       </div>
-      <div
-        className="body"
-        style={{ width: "100%", backgroundColor: "#efefef" }}
-      >
+      <div className="body" style={{ width: "100%", backgroundColor: "#efefef" }}>
         <div
           id="container"
           style={{
-            margin: "0 auto",
-            height: "1000px",
             width: "1270px",
+            margin: "0 auto",
           }}
         >
-          <SliderComponent arrImages={[slide1, slide2, slide3]} />
+          <div style={{ 
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            marginTop: "20px",
+            marginBottom: "20px"
+          }}>
+            <SliderComponent arrImages={[slide1, slide2, slide3]} />
+          </div>
           <WrapperProducts>
-            {products?.data?.map((product) => {
+            {products?.data?.map((product, index) => {
               return (
                 <CardComponent
-                  key={product.id}
+                  key={product.id || index}
                   countInStock={product.countInStock}
                   description={product.description}
                   image={product.image}

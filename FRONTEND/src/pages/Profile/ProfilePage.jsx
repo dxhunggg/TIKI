@@ -198,7 +198,12 @@ const ProfilePage = () => {
             {avatar && (
               <img
                 src={avatar}
-                style={{ height: "60px", width: "60px", borderRadius: "50%" }}
+                style={{
+                  height: "60px",
+                  width: "60px",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                }}
                 alt="avatar"
               />
             )}

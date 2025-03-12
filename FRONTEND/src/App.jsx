@@ -100,7 +100,6 @@ const App = () => {
       const res = await UserService.getDetailsUser(id, token);
       dispatch(updateUser({ ...res?.data, access_token: token }));
       setIsLoading(false);
-      console.log("User data:", res);
     } catch (error) {
       console.error("Lỗi khi lấy thông tin user:", error);
     }
