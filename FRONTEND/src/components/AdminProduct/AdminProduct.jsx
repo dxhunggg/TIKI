@@ -10,7 +10,11 @@ import { useMutationHooks } from "../../hooks/useMutationHook";
 import Loading from "../LoadingComponent/Loading";
 import * as message from "../../components/Message/Message.jsx";
 import { useQuery } from "@tanstack/react-query";
+import DrawerComponent from "../DrawerComponent/DrawerComponent.jsx";
+import { useSelector } from "react-redux";
 const AdminProduct = () => {
+  const [rowSelected, setRowSelected] = useState("");
+  const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const mutation = useMutationHooks((data) => {
     const { name, price, description, image, countInStock, rating, type } =
       data;
@@ -25,8 +29,24 @@ const AdminProduct = () => {
     });
     return res;
   });
+  const mutationUpdate = useMutationHooks((data) => {
+    const { id, token, ...rests } = data;
+    const res = ProductService.updateProduct(id, token, rests);
+    return res;
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const user = useSelector((state) => state?.user);
+
   const [stateProduct, setStateProduct] = useState({
+    name: "",
+    price: "",
+    description: "",
+    image: "",
+    countInStock: "",
+    rating: "",
+    type: "",
+  });
+  const [stateProductDetails, setStateProductDetails] = useState({
     name: "",
     price: "",
     description: "",
@@ -37,7 +57,14 @@ const AdminProduct = () => {
   });
   const [form] = Form.useForm();
   const { data, isLoading = false, isSuccess, isError } = mutation;
+  const {
+    data: dataUpdated,
+    isLoading: isLoadingUpdated,
+    isSuccess: isSuccessUpdated,
+    isError: isErrorUpdated,
+  } = mutationUpdate;
 
+  const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
   const getAllProducts = async (data) => {
     const res = await ProductService.getAllProduct();
     return res;
@@ -46,6 +73,37 @@ const AdminProduct = () => {
     queryKey: ["products"],
     queryFn: getAllProducts,
   });
+  const fetchGetProductDetails = async (rowSelected) => {
+    const res = await ProductService.getDetailsProduct(rowSelected);
+    if (res?.data) {
+      setStateProductDetails({
+        name: res?.data?.name,
+        price: res?.data?.price,
+        description: res?.data?.description,
+        image: res?.data?.image,
+        countInStock: res?.data?.countInStock,
+        rating: res?.data?.rating,
+        type: res?.data?.type,
+      });
+    }
+    setIsLoadingUpdate(false);
+    return res;
+  };
+  useEffect(() => {
+    form.setFieldsValue(stateProductDetails);
+  }, [form, stateProductDetails]);
+  useEffect(() => {
+    if (rowSelected) {
+      fetchGetProductDetails(rowSelected);
+    }
+  }, [rowSelected]);
+
+  const handleEditProduct = () => {
+    if (rowSelected) {
+      fetchGetProductDetails();
+    }
+    setIsOpenDrawer(true);
+  };
   const renderAction = () => {
     return (
       <div>
@@ -56,6 +114,7 @@ const AdminProduct = () => {
         </DeleteOutlined>
         <EditOutlined
           style={{ color: "orange", fontSize: "30px", cursor: "pointer" }}
+          onClick={handleEditProduct}
         >
           Sửa
         </EditOutlined>
@@ -125,6 +184,12 @@ const AdminProduct = () => {
   const handleOnChange = (e) => {
     setStateProduct({ ...stateProduct, [e.target.name]: e.target.value });
   };
+  const handleOnChangeDetails = (e) => {
+    setStateProductDetails({
+      ...stateProductDetails,
+      [e.target.name]: e.target.value,
+    });
+  };
   const handleOnChangeAvatar = async ({ fileList }) => {
     const file = fileList[0];
     if (!file.url && !file.preview) {
@@ -132,6 +197,61 @@ const AdminProduct = () => {
     }
     setStateProduct({ ...stateProduct, image: file.preview });
   };
+  const handleOnChangeAvatarDetails = async ({ fileList }) => {
+    const file = fileList[0];
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj);
+    }
+    setStateProductDetails({ ...stateProductDetails, image: file.preview });
+  };
+
+  const onUpdateProduct = () => {
+    mutationUpdate.mutate(
+      {
+        id: rowSelected,
+        token: user?.access_token,
+        ...stateProductDetails,
+      },
+      {
+        onError: (error) => {
+          message.error(
+            `Lỗi cập nhật: ${
+              error.response?.data?.message || "Lỗi không xác định"
+            }`
+          );
+        },
+      }
+    );
+  };
+  useEffect(() => {
+    if (isSuccessUpdated && dataUpdated?.status === "OK") {
+      message.success("Cập nhật sản phẩm thành công");
+      handleCloseDrawer();
+    } else if (isErrorUpdated) {
+      message.error("Cập nhật sản phẩm thất bại");
+    }
+  }, [isSuccessUpdated, isErrorUpdated]);
+
+  const handleCloseDrawer = () => {
+    setIsOpenDrawer(false);
+    setIsLoadingUpdate(false);
+    form.resetFields();
+    setStateProductDetails({
+      name: "",
+      price: "",
+      description: "",
+      image: "",
+      countInStock: "",
+      rating: "",
+      type: "",
+    });
+  };
+
+  useEffect(() => {
+    if (!isOpenDrawer) {
+      setIsLoadingUpdate(false);
+    }
+  }, [isOpenDrawer]);
   return (
     <div>
       <WrapperHeader>Quản lý sản phẩm</WrapperHeader>
@@ -153,6 +273,13 @@ const AdminProduct = () => {
           columns={columns}
           isLoading={isLoadingProducts}
           data={dataTable}
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (event) => {
+                setRowSelected(record._id);
+              },
+            };
+          }}
         />
       </div>
       <Modal
@@ -312,6 +439,163 @@ const AdminProduct = () => {
           </Form>
         </Loading>
       </Modal>
+      <DrawerComponent
+        title="Chi tiết sản phẩm"
+        isOpen={isOpenDrawer}
+        onClose={handleCloseDrawer}
+        width="90%"
+      >
+        <Loading isLoading={isLoadingUpdate}>
+          <Form
+            name="basic"
+            labelCol={{
+              span: 2,
+            }}
+            wrapperCol={{
+              span: 22,
+            }}
+            onFinish={onUpdateProduct}
+            autoComplete="off"
+            form={form}
+          >
+            <Form.Item
+              label="Name"
+              name="name"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your name!",
+                },
+              ]}
+            >
+              <Input
+                value={stateProductDetails.name}
+                onChange={handleOnChangeDetails}
+                name="name"
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Type"
+              name="type"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your type!",
+                },
+              ]}
+            >
+              <Input
+                value={stateProductDetails.type}
+                onChange={handleOnChangeDetails}
+                name="type"
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Count in stock"
+              name="countInStock"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your Count in stock!",
+                },
+              ]}
+            >
+              <Input
+                value={stateProductDetails.countInStock}
+                onChange={handleOnChangeDetails}
+                name="countInStock"
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Price"
+              name="price"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your price!",
+                },
+              ]}
+            >
+              <Input
+                value={stateProductDetails.price}
+                onChange={handleOnChangeDetails}
+                name="price"
+              />
+            </Form.Item>
+            <Form.Item
+              label="Description"
+              name="description"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your description!",
+                },
+              ]}
+            >
+              <Input
+                value={stateProductDetails.description}
+                onChange={handleOnChangeDetails}
+                name="description"
+              />
+            </Form.Item>
+            <Form.Item
+              label="Rating"
+              name="rating"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your rating!",
+                },
+              ]}
+            >
+              <Input
+                value={stateProductDetails.rating}
+                onChange={handleOnChangeDetails}
+                name="rating"
+              />
+            </Form.Item>
+            <Form.Item
+              label="Image"
+              name="image"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your image!",
+                },
+              ]}
+            >
+              <WrapperUploadFile
+                onChange={handleOnChangeAvatarDetails}
+                maxCount={1}
+              >
+                <Button>Select File</Button>
+                {stateProductDetails.image && (
+                  <img
+                    src={stateProductDetails?.image}
+                    style={{
+                      height: "60px",
+                      width: "60px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      marginLeft: "10px",
+                    }}
+                    alt="avatar"
+                  />
+                )}
+              </WrapperUploadFile>
+            </Form.Item>
+
+            <Form.Item label={null} wrapperCol={{ offset: 20, span: 16 }}>
+              <Button type="primary" htmlType="submit">
+                Update
+              </Button>
+            </Form.Item>
+          </Form>
+        </Loading>
+      </DrawerComponent>
     </div>
   );
 };

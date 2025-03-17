@@ -10,7 +10,6 @@ const ProductTable = (props) => {
     columns = [],
   } = props;
 
-  
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
       console.log(
@@ -30,6 +29,7 @@ const ProductTable = (props) => {
         rowSelection={{ type: selectionType, ...rowSelection }}
         columns={columns}
         dataSource={data}
+        {...props}
       />
     </Loading>
   );
