@@ -55,6 +55,8 @@ const updateProduct = async (req, res) => {
 const getDetailsProduct = async (req, res) => {
   try {
     const productId = req.params.id;
+    console.log("Product ID received:", req.params.id);
+
     if (!productId) {
       return res
         .status(200)

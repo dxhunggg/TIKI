@@ -12,9 +12,11 @@ import * as message from "../../components/Message/Message.jsx";
 import { useQuery } from "@tanstack/react-query";
 import DrawerComponent from "../DrawerComponent/DrawerComponent.jsx";
 import { useSelector } from "react-redux";
+import ModalComponent from "../ModalComponent/ModalComponent.jsx";
 const AdminProduct = () => {
   const [rowSelected, setRowSelected] = useState("");
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
+  const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
   const mutation = useMutationHooks((data) => {
     const { name, price, description, image, countInStock, rating, type } =
       data;
@@ -31,7 +33,12 @@ const AdminProduct = () => {
   });
   const mutationUpdate = useMutationHooks((data) => {
     const { id, token, ...rests } = data;
-    const res = ProductService.updateProduct(id, token, rests);
+    const res = ProductService.updateProduct(id, token, { ...rests });
+    return res;
+  });
+  const mutationDelete = useMutationHooks((data) => {
+    const { id, token } = data;
+    const res = ProductService.deleteProduct(id, token);
     return res;
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,20 +66,27 @@ const AdminProduct = () => {
   const { data, isLoading = false, isSuccess, isError } = mutation;
   const {
     data: dataUpdated,
-    isLoading: isLoadingUpdated,
+    isLoading: isLoadingUpdated = false,
     isSuccess: isSuccessUpdated,
     isError: isErrorUpdated,
   } = mutationUpdate;
+  const {
+    data: dataDeleted,
+    isLoading: isLoadingDeleted = false,
+    isSuccess: isSuccessDeleted,
+    isError: isErrorDeleted,
+  } = mutationDelete;
 
   const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
   const getAllProducts = async (data) => {
     const res = await ProductService.getAllProduct();
     return res;
   };
-  const { isLoading: isLoadingProducts, data: products } = useQuery({
+  const queryProduct = useQuery({
     queryKey: ["products"],
     queryFn: getAllProducts,
   });
+  const { isLoading: isLoadingProducts, data: products } = queryProduct;
   const fetchGetProductDetails = async (rowSelected) => {
     const res = await ProductService.getDetailsProduct(rowSelected);
     if (res?.data) {
@@ -90,8 +104,11 @@ const AdminProduct = () => {
     return res;
   };
   useEffect(() => {
-    form.setFieldsValue(stateProductDetails);
-  }, [form, stateProductDetails]);
+    if (stateProductDetails && Object.keys(stateProductDetails).length > 0) {
+      form.setFieldsValue(stateProductDetails);
+    }
+  }, [stateProductDetails]);
+
   useEffect(() => {
     if (rowSelected) {
       fetchGetProductDetails(rowSelected);
@@ -99,9 +116,6 @@ const AdminProduct = () => {
   }, [rowSelected]);
 
   const handleEditProduct = () => {
-    if (rowSelected) {
-      fetchGetProductDetails();
-    }
     setIsOpenDrawer(true);
   };
   const renderAction = () => {
@@ -109,6 +123,7 @@ const AdminProduct = () => {
       <div>
         <DeleteOutlined
           style={{ color: "red", fontSize: "30px", cursor: "pointer" }}
+          onClick={() => setIsModalOpenDelete(true)}
         >
           Xóa
         </DeleteOutlined>
@@ -156,8 +171,36 @@ const AdminProduct = () => {
     } else if (isError) {
       message.error("Thêm sản phẩm thất bại!");
     }
-  }, [isSuccess]);
-
+  }, [isSuccess, isError]);
+  useEffect(() => {
+    if (isSuccessUpdated && dataUpdated?.status === "OK") {
+      message.success("Cập nhật sản phẩm thành công");
+      handleCloseDrawer();
+    } else if (isErrorUpdated) {
+      message.error("Cập nhật sản phẩm thất bại");
+    }
+  }, [isSuccessUpdated, isErrorUpdated]);
+  useEffect(() => {
+    if (isSuccessDeleted && dataDeleted?.status === "OK") {
+      message.success("Xóa sản phẩm thành công!");
+      handleCancelDelete();
+    } else if (isErrorDeleted) {
+      message.error("Xóa sản phẩm thất bại!");
+    }
+  }, [isSuccessDeleted, isErrorDeleted]);
+  const handleCancelDelete = () => {
+    setIsModalOpenDelete(false);
+  };
+  const handleDeleteProduct = () => {
+    mutationDelete.mutate(
+      { id: rowSelected, token: user?.access_token },
+      {
+        onSettled: () => {
+          queryProduct.refetch();
+        },
+      }
+    );
+  };
   const handleCancel = () => {
     setIsModalOpen(false);
     setStateProduct({
@@ -179,7 +222,11 @@ const AdminProduct = () => {
       message.error("Vui lòng điền đầy đủ thông tin!");
       return;
     }
-    mutation.mutate(stateProduct);
+    mutation.mutate(stateProduct, {
+      onSettled: () => {
+        queryProduct.refetch();
+      },
+    });
   };
   const handleOnChange = (e) => {
     setStateProduct({ ...stateProduct, [e.target.name]: e.target.value });
@@ -213,6 +260,11 @@ const AdminProduct = () => {
         ...stateProductDetails,
       },
       {
+        onSettled: () => {
+          queryProduct.refetch();
+        },
+      },
+      {
         onError: (error) => {
           message.error(
             `Lỗi cập nhật: ${
@@ -223,14 +275,6 @@ const AdminProduct = () => {
       }
     );
   };
-  useEffect(() => {
-    if (isSuccessUpdated && dataUpdated?.status === "OK") {
-      message.success("Cập nhật sản phẩm thành công");
-      handleCloseDrawer();
-    } else if (isErrorUpdated) {
-      message.error("Cập nhật sản phẩm thất bại");
-    }
-  }, [isSuccessUpdated, isErrorUpdated]);
 
   const handleCloseDrawer = () => {
     setIsOpenDrawer(false);
@@ -282,7 +326,7 @@ const AdminProduct = () => {
           }}
         />
       </div>
-      <Modal
+      <ModalComponent
         title="Tạo sản phẩm"
         open={isModalOpen}
         onCancel={handleCancel}
@@ -413,7 +457,13 @@ const AdminProduct = () => {
                 },
               ]}
             >
-              <WrapperUploadFile onChange={handleOnChangeAvatar} maxCount={1}>
+              <WrapperUploadFile
+                fileList={
+                  stateProduct.image ? [{ url: stateProduct.image }] : []
+                }
+                onChange={handleOnChangeAvatar}
+                maxCount={1}
+              >
                 <Button>Select File</Button>
                 {stateProduct.image && (
                   <img
@@ -438,14 +488,14 @@ const AdminProduct = () => {
             </Form.Item>
           </Form>
         </Loading>
-      </Modal>
+      </ModalComponent>
       <DrawerComponent
         title="Chi tiết sản phẩm"
         isOpen={isOpenDrawer}
         onClose={handleCloseDrawer}
         width="90%"
       >
-        <Loading isLoading={isLoadingUpdate}>
+        <Loading isLoading={isLoadingUpdate || isLoadingUpdated}>
           <Form
             name="basic"
             labelCol={{
@@ -568,6 +618,11 @@ const AdminProduct = () => {
               ]}
             >
               <WrapperUploadFile
+                fileList={
+                  stateProductDetails.image
+                    ? [{ url: stateProductDetails.image }]
+                    : []
+                }
                 onChange={handleOnChangeAvatarDetails}
                 maxCount={1}
               >
@@ -596,6 +651,16 @@ const AdminProduct = () => {
           </Form>
         </Loading>
       </DrawerComponent>
+      <ModalComponent
+        title="Xóa sản phẩm"
+        open={isModalOpenDelete}
+        onCancel={handleCancelDelete}
+        onOk={handleDeleteProduct}
+      >
+        <Loading isLoading={isLoadingDeleted}>
+          <div>Bạn có chắc xóa sản phẩm này không?</div>
+        </Loading>
+      </ModalComponent>
     </div>
   );
 };
