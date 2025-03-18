@@ -1,6 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Modal } from "antd";
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import React, { useEffect, useRef, useState } from "react";
+import { Button, Form, Input, Modal, Space } from "antd";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import { WrapperHeader } from "../AdminUser/style";
 import ProductTable from "../TableComponent/ProductTable";
 import { WrapperUploadFile } from "./style";
@@ -16,7 +21,30 @@ import ModalComponent from "../ModalComponent/ModalComponent.jsx";
 const AdminProduct = () => {
   const [rowSelected, setRowSelected] = useState("");
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
+  const [stateProduct, setStateProduct] = useState({
+    name: "",
+    price: "",
+    description: "",
+    image: "",
+    countInStock: "",
+    rating: "",
+    type: "",
+  });
+  const [stateProductDetails, setStateProductDetails] = useState({
+    name: "",
+    price: "",
+    description: "",
+    image: "",
+    countInStock: "",
+    rating: "",
+    type: "",
+  });
+  const searchInput = useRef(null);
+
+  const user = useSelector((state) => state?.user);
+  const [form] = Form.useForm();
   const mutation = useMutationHooks((data) => {
     const { name, price, description, image, countInStock, rating, type } =
       data;
@@ -41,28 +69,7 @@ const AdminProduct = () => {
     const res = ProductService.deleteProduct(id, token);
     return res;
   });
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const user = useSelector((state) => state?.user);
 
-  const [stateProduct, setStateProduct] = useState({
-    name: "",
-    price: "",
-    description: "",
-    image: "",
-    countInStock: "",
-    rating: "",
-    type: "",
-  });
-  const [stateProductDetails, setStateProductDetails] = useState({
-    name: "",
-    price: "",
-    description: "",
-    image: "",
-    countInStock: "",
-    rating: "",
-    type: "",
-  });
-  const [form] = Form.useForm();
   const { data, isLoading = false, isSuccess, isError } = mutation;
   const {
     data: dataUpdated,
@@ -136,18 +143,133 @@ const AdminProduct = () => {
       </div>
     );
   };
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+  };
+  const handleReset = (clearFilters) => {
+    clearFilters();
+  };
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              close();
+            }}
+          >
+            Close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+    ),
+    onFilter: (value, record) =>
+      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+    onFilterDropdownOpenChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.current?.select(), 100);
+      }
+    },
+  });
   const columns = [
     {
       title: "Name",
       dataIndex: "name",
+      sorter: (a, b) => a.name.length - b.name.length,
+      ...getColumnSearchProps("name"),
     },
     {
       title: "Price",
       dataIndex: "price",
+      sorter: (a, b) => a.price - b.price,
+      filters: [
+        {
+          text: ">= 50",
+          value: ">=",
+        },
+        {
+          text: "<= 50",
+          value: "<=",
+        },
+      ],
+      onFilter: (value, record) => {
+        if (value === "<=") {
+          return record.price <= 50;
+        } else if (value === ">=") {
+          return record.price >= 50;
+        }
+      },
     },
     {
       title: "Rating",
       dataIndex: "rating",
+      sorter: (a, b) => a.rating - b.rating,
+      filters: [
+        {
+          text: "4 - 5 sao",
+          value: "4-5",
+        },
+        {
+          text: "3 - 4 sao",
+          value: "3-4",
+        },
+        {
+          text: "2 - 3 sao",
+          value: "2-3",
+        },
+        {
+          text: "1 - 2 sao",
+          value: "1-2",
+        },
+        {
+          text: "Dưới 1 sao",
+          value: "<1",
+        },
+      ],
+      onFilter: (value, record) => {
+        if (value === "<1") {
+          return record.rating < 1;
+        }
+        const [min, max] = value.split("-").map(Number);
+        return record.rating >= min && record.rating <= max;
+      },
     },
     {
       title: "Type",
@@ -161,7 +283,7 @@ const AdminProduct = () => {
   ];
   const dataTable =
     products?.data?.length &&
-    products?.data.map((product) => {
+    products?.data?.map((product) => {
       return { ...product, key: product._id };
     });
   useEffect(() => {
@@ -237,12 +359,21 @@ const AdminProduct = () => {
       [e.target.name]: e.target.value,
     });
   };
+  const [imageLoading, setImageLoading] = useState(false);
+
   const handleOnChangeAvatar = async ({ fileList }) => {
-    const file = fileList[0];
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
+    try {
+      setImageLoading(true);
+      const file = fileList[0];
+      if (!file.url && !file.preview) {
+        file.preview = await getBase64(file.originFileObj);
+      }
+      setStateProduct({ ...stateProduct, image: file.preview });
+    } catch (error) {
+      message.error("Lỗi khi tải ảnh");
+    } finally {
+      setImageLoading(false);
     }
-    setStateProduct({ ...stateProduct, image: file.preview });
   };
   const handleOnChangeAvatarDetails = async ({ fileList }) => {
     const file = fileList[0];
@@ -253,6 +384,10 @@ const AdminProduct = () => {
   };
 
   const onUpdateProduct = () => {
+    if (!user?.access_token) {
+      message.error("Vui lòng đăng nhập lại");
+      return;
+    }
     mutationUpdate.mutate(
       {
         id: rowSelected,
@@ -263,8 +398,6 @@ const AdminProduct = () => {
         onSettled: () => {
           queryProduct.refetch();
         },
-      },
-      {
         onError: (error) => {
           message.error(
             `Lỗi cập nhật: ${
@@ -405,7 +538,12 @@ const AdminProduct = () => {
               rules={[
                 {
                   required: true,
-                  message: "Please input your price!",
+                  message: "Vui lòng nhập giá!",
+                },
+                {
+                  type: "number",
+                  message: "Giá phải là số!",
+                  transform: (value) => Number(value),
                 },
               ]}
             >
@@ -565,7 +703,12 @@ const AdminProduct = () => {
               rules={[
                 {
                   required: true,
-                  message: "Please input your price!",
+                  message: "Vui lòng nhập giá!",
+                },
+                {
+                  type: "number",
+                  message: "Giá phải là số!",
+                  transform: (value) => Number(value),
                 },
               ]}
             >
