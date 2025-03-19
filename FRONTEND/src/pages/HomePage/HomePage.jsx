@@ -33,7 +33,10 @@ const HomePage = () => {
           })}
         </WrapperTypeProduct>
       </div>
-      <div className="body" style={{ width: "100%", backgroundColor: "#efefef" }}>
+      <div
+        className="body"
+        style={{ width: "100%", backgroundColor: "#efefef" }}
+      >
         <div
           id="container"
           style={{
@@ -41,13 +44,15 @@ const HomePage = () => {
             margin: "0 auto",
           }}
         >
-          <div style={{ 
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "20px",
-            marginBottom: "20px"
-          }}>
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "20px",
+              marginBottom: "20px",
+            }}
+          >
             <SliderComponent arrImages={[slide1, slide2, slide3]} />
           </div>
           <WrapperProducts>
@@ -77,7 +82,7 @@ const HomePage = () => {
             }}
           >
             <WrapperButtonMore
-              textButton="Xem them"
+              textButton="Xem thêm"
               type="ouline"
               styleButton={{
                 border: "1px solid rgb(11,116,239)",

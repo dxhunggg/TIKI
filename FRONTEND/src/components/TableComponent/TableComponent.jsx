@@ -2,7 +2,7 @@ import { Divider, Radio, Table } from "antd";
 import React, { useState } from "react";
 import Loading from "../LoadingComponent/Loading";
 
-const ProductTable = (props) => {
+const TableComponent = (props) => {
   const {
     selectionType = "checkbox",
     data = [],
@@ -35,4 +35,4 @@ const ProductTable = (props) => {
   );
 };
 
-export default ProductTable;
+export default TableComponent;

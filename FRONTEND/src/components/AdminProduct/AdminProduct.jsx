@@ -7,7 +7,7 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import { WrapperHeader } from "../AdminUser/style";
-import ProductTable from "../TableComponent/ProductTable";
+import TableComponent from "../TableComponent/TableComponent.jsx";
 import { WrapperUploadFile } from "./style";
 import { getBase64 } from "../../utils";
 import * as ProductService from "../../services/ProductService";
@@ -42,7 +42,6 @@ const AdminProduct = () => {
     type: "",
   });
   const searchInput = useRef(null);
-
   const user = useSelector((state) => state?.user);
   const [form] = Form.useForm();
   const mutation = useMutationHooks((data) => {
@@ -446,7 +445,7 @@ const AdminProduct = () => {
         </Button>
       </div>
       <div style={{ marginTop: "20px" }}>
-        <ProductTable
+        <TableComponent
           columns={columns}
           isLoading={isLoadingProducts}
           data={dataTable}
