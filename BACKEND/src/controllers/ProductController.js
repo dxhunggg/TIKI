@@ -93,7 +93,25 @@ const deleteProduct = async (req, res) => {
     });
   }
 };
+const deleteMany = async (req, res) => {
+  try {
+    const ids = req.body.ids;
+    if (!ids) {
+      return res
+        .status(200)
+        .json({ status: "ERR", message: "Product ID is required." });
+    }
 
+    const response = await ProductService.deleteManyProducts(ids);
+    return res.status(200).json(response);
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: "ERR",
+      message: error.message || "Internal Server Error.",
+      error: error.error || null,
+    });
+  }
+};
 const getAllProducts = async (req, res) => {
   try {
     const { limit, page, sort, filter } = req.query;
@@ -119,4 +137,5 @@ module.exports = {
   getDetailsProduct,
   deleteProduct,
   getAllProducts,
+  deleteMany,
 };

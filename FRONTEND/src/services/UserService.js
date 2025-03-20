@@ -77,3 +77,12 @@ export const updateUser = async (id, access_token, data) => {
     throw error;
   }
 };
+
+export const deleteManyUsers = async (data, access_token) => {
+  const res = await axiosJWT.post(`${apiUrl}/user/delete-many`, data, {
+    headers: {
+      token: `Bearer ${access_token}`,
+    },
+  });
+  return res.data;
+};

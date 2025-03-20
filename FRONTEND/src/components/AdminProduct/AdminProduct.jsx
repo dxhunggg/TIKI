@@ -68,6 +68,11 @@ const AdminProduct = () => {
     const res = ProductService.deleteProduct(id, token);
     return res;
   });
+  const mutationDeleteMany = useMutationHooks((data) => {
+    const { token, ...ids } = data;
+    const res = ProductService.deleteManyProducts(ids, token);
+    return res;
+  });
 
   const { data, isLoading = false, isSuccess, isError } = mutation;
   const {
@@ -82,6 +87,12 @@ const AdminProduct = () => {
     isSuccess: isSuccessDeleted,
     isError: isErrorDeleted,
   } = mutationDelete;
+  const {
+    data: dataDeletedMany,
+    isLoading: isLoadingDeletedMany = false,
+    isSuccess: isSuccessDeletedMany,
+    isError: isErrorDeletedMany,
+  } = mutationDeleteMany;
 
   const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
   const getAllProducts = async (data) => {
@@ -116,10 +127,11 @@ const AdminProduct = () => {
   }, [stateProductDetails]);
 
   useEffect(() => {
-    if (rowSelected) {
+    if (rowSelected && isOpenDrawer) {
+      setIsLoadingUpdate(true);
       fetchGetProductDetails(rowSelected);
     }
-  }, [rowSelected]);
+  }, [rowSelected, isOpenDrawer]);
 
   const handleEditProduct = () => {
     setIsOpenDrawer(true);
@@ -309,6 +321,13 @@ const AdminProduct = () => {
       message.error("Xóa sản phẩm thất bại!");
     }
   }, [isSuccessDeleted, isErrorDeleted]);
+  useEffect(() => {
+    if (isSuccessDeletedMany && dataDeletedMany?.status === "OK") {
+      message.success("Xóa sản phẩm thành công!");
+    } else if (isErrorDeletedMany) {
+      message.error("Xóa sản phẩm thất bại!");
+    }
+  }, [isSuccessDeletedMany, isErrorDeletedMany]);
   const handleCancelDelete = () => {
     setIsModalOpenDelete(false);
   };
@@ -359,7 +378,6 @@ const AdminProduct = () => {
     });
   };
   const [imageLoading, setImageLoading] = useState(false);
-
   const handleOnChangeAvatar = async ({ fileList }) => {
     try {
       setImageLoading(true);
@@ -422,6 +440,16 @@ const AdminProduct = () => {
       type: "",
     });
   };
+  const handleDeleteManyProducts = (ids) => {
+    mutationDeleteMany.mutate(
+      { ids: ids, token: user?.access_token },
+      {
+        onSettled: () => {
+          queryProduct.refetch();
+        },
+      }
+    );
+  };
 
   useEffect(() => {
     if (!isOpenDrawer) {
@@ -446,6 +474,7 @@ const AdminProduct = () => {
       </div>
       <div style={{ marginTop: "20px" }}>
         <TableComponent
+          handleDeleteMany={handleDeleteManyProducts}
           columns={columns}
           isLoading={isLoadingProducts}
           data={dataTable}

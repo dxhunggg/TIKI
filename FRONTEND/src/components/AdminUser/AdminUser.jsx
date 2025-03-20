@@ -46,6 +46,11 @@ const AdminUser = () => {
     const res = UserService.deleteUser(id, token);
     return res;
   });
+  const mutationDeleteMany = useMutationHooks((data) => {
+    const { token, ...ids } = data;
+    const res = UserService.deleteManyUsers(ids, token);
+    return res;
+  });
   const {
     data: dataUpdated,
     isLoading: isLoadingUpdated = false,
@@ -58,16 +63,18 @@ const AdminUser = () => {
     isSuccess: isSuccessDeleted,
     isError: isErrorDeleted,
   } = mutationDelete;
-
+  const {
+    data: dataDeletedMany,
+    isLoading: isLoadingDeletedMany = false,
+    isSuccess: isSuccessDeletedMany,
+    isError: isErrorDeletedMany,
+  } = mutationDeleteMany;
   const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
   const getAllUsers = async () => {
     try {
-      console.log("Calling getAllUser with token:", user?.access_token);
       const res = await UserService.getAllUser(user?.access_token);
-      console.log("Response from getAllUser:", res);
       return res;
     } catch (error) {
-      console.error("Error fetching users:", error);
       message.error("Có lỗi xảy ra khi lấy danh sách người dùng");
     }
   };
@@ -96,10 +103,11 @@ const AdminUser = () => {
   }, [stateUserDetails]);
 
   useEffect(() => {
-    if (rowSelected) {
+    if (rowSelected && isOpenDrawer) {
+      setIsLoadingUpdate(true);
       fetchGetUserDetails(rowSelected);
     }
-  }, [rowSelected]);
+  }, [rowSelected, isOpenDrawer]);
 
   const handleEditUser = () => {
     setIsOpenDrawer(true);
@@ -249,6 +257,13 @@ const AdminUser = () => {
       message.error("Xóa người dùng thất bại!");
     }
   }, [isSuccessDeleted, isErrorDeleted]);
+  useEffect(() => {
+    if (isSuccessDeletedMany && dataDeletedMany?.status === "OK") {
+      message.success("Xóa người dùng thành công!");
+    } else if (isErrorDeletedMany) {
+      message.error("Xóa người dùng thất bại!");
+    }
+  }, [isSuccessDeletedMany, isErrorDeletedMany]);
   const handleCancelDelete = () => {
     setIsModalOpenDelete(false);
   };
@@ -305,7 +320,16 @@ const AdminUser = () => {
       isAdmin: false,
     });
   };
-
+  const handleDeleteManyUsers = (ids) => {
+    mutationDeleteMany.mutate(
+      { ids: ids, token: user?.access_token },
+      {
+        onSettled: () => {
+          queryUser.refetch();
+        },
+      }
+    );
+  };
   useEffect(() => {
     if (!isOpenDrawer) {
       setIsLoadingUpdate(false);
@@ -316,6 +340,7 @@ const AdminUser = () => {
       <WrapperHeader>Quản lý người dùng</WrapperHeader>
       <div style={{ marginTop: "20px" }}>
         <TableComponent
+          handleDeleteMany={handleDeleteManyUsers}
           columns={columns}
           isLoading={isLoadingUsers}
           data={dataTable}
