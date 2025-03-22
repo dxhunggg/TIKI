@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import TypeProduct from "../../components/TypeProduct/TypeProduct";
 import {
   WrapperButtonMore,
@@ -12,20 +12,50 @@ import slide3 from "../../assets/images/slide3.png";
 import CardComponent from "../../components/CardComponent/CardComponent";
 import { useQuery } from "@tanstack/react-query";
 import * as ProductService from "../../services/ProductService";
+import { useSelector } from "react-redux";
+import { useDebounce } from "../../hooks/useDebounce";
+import Loading from "../../components/LoadingComponent/Loading";
 const HomePage = () => {
+  const searchProduct = useSelector((state) => state?.product?.search);
+  const searchDebounce = useDebounce(searchProduct, 1000);
+  const refSearch = useRef();
+  const [stateProduct, setStateProduct] = useState("");
+  const [loading, setLoading] = useState(false);
   const arr = ["TV", "Tủ lạnh", "Laptop"];
-  const fetchProductAll = async () => {
-    const res = await ProductService.getAllProduct();
-    return res;
+  const fetchProductAll = async (search) => {
+    try {
+      const res = await ProductService.getAllProduct(search);
+      return res;
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      return { data: [] };
+    }
   };
+  useEffect(() => {
+    if (refSearch.current) {
+      setLoading(true);
+      const fetchSearch = async () => {
+        const res = await fetchProductAll(searchDebounce);
+        setStateProduct(res?.data || []);
+        setLoading(false);
+      };
+      fetchSearch();
+    }
+    refSearch.current = true;
+  }, [searchDebounce]);
   const { isLoading, data: products } = useQuery({
     queryKey: ["product"],
-    queryFn: fetchProductAll,
+    queryFn: () => fetchProductAll(),
     retry: 3,
     retryDelay: 1000,
   });
+  useEffect(() => {
+    if (products?.data?.length > 0) {
+      setStateProduct(products?.data);
+    }
+  }, [products]);
   return (
-    <>
+    <Loading isLoading={loading}>
       <div style={{ width: "1270px", margin: "0 auto" }}>
         <WrapperTypeProduct>
           {arr.map((item) => {
@@ -96,7 +126,7 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-    </>
+    </Loading>
   );
 };
 

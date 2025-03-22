@@ -19,8 +19,9 @@ import { useDispatch, useSelector } from "react-redux";
 import * as UserService from "../../services/UserService";
 import { resetUser } from "../../redux/userSlide";
 import Loading from "../LoadingComponent/Loading";
+import { searchProduct } from "../../redux/productSlide";
 
-const HeaderComponent = ({isHiddenSearch = false, isHiddenCart = false}) => {
+const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   const navigate = useNavigate();
   const handleNavigateLogin = () => {
     navigate("/sign-in");
@@ -35,7 +36,7 @@ const HeaderComponent = ({isHiddenSearch = false, isHiddenCart = false}) => {
   };
   const [userName, setUserName] = useState("");
   const [userAvatar, setUserAvatar] = useState("");
-
+  const [search, setSearch] = useState("");
   useEffect(() => {
     setLoading(true);
     setUserName(user.name);
@@ -66,6 +67,11 @@ const HeaderComponent = ({isHiddenSearch = false, isHiddenCart = false}) => {
       </WrapperContentPopUp>
     </div>
   );
+  const onSearch = (e) => {
+    setSearch(e.target.value);
+    console.log("e", e.target.value);
+    dispatch(searchProduct(e.target.value));
+  };
   return (
     <div
       style={{
@@ -91,7 +97,7 @@ const HeaderComponent = ({isHiddenSearch = false, isHiddenCart = false}) => {
               size="large"
               textButton="Tìm kiếm"
               placeholder="input search text"
-              //onSearch={onSearch}
+              onChange={onSearch}
             />
           </Col>
         )}

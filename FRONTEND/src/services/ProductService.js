@@ -4,8 +4,15 @@ const apiUrl = import.meta.env.VITE_API_URL_BACKEND;
 
 export const axiosJWT = axios.create();
 
-export const getAllProduct = async (data) => {
-  const res = await axios.get(`${apiUrl}/product/get-all`);
+export const getAllProduct = async (search, limit) => {
+  let res = {};
+  if (search?.length > 0) {
+    res = await axios.get(
+      `${apiUrl}/product/get-all?filter=name&filter=${search}&limit=${limit}`
+    );
+  } else {
+    res = await axios.get(`${apiUrl}/product/get-all?limit=${limit}`);
+  }
   return res.data;
 };
 
