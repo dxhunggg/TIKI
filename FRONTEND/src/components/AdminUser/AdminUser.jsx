@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { WrapperHeader } from "./style";
+import { WrapperHeader, WrapperUploadFile } from "./style";
 import { Button, Form, Input, Space } from "antd";
 import {
   DeleteOutlined,
@@ -16,22 +16,19 @@ import { useMutationHooks } from "../../hooks/useMutationHook";
 import { useQuery } from "@tanstack/react-query";
 import * as message from "../../components/Message/Message.jsx";
 import * as UserService from "../../services/UserService";
+import { getBase64 } from "../../utils.js";
 
 const AdminUser = () => {
   const [rowSelected, setRowSelected] = useState("");
   const [isOpenDrawer, setIsOpenDrawer] = useState(false);
   const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
-  const [stateUser, setStateUser] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    isAdmin: false,
-  });
   const [stateUserDetails, setStateUserDetails] = useState({
     name: "",
     email: "",
     phone: "",
     isAdmin: false,
+    avatar: "",
+    address: "",
   });
   const searchInput = useRef(null);
   const user = useSelector((state) => state?.user);
@@ -91,6 +88,8 @@ const AdminUser = () => {
         email: res?.data?.email,
         phone: res?.data?.phone,
         isAdmin: res?.data?.isAdmin,
+        address: res?.data?.address,
+        avatar: res?.data?.avatar,
       });
     }
     setIsLoadingUpdate(false);
@@ -100,7 +99,7 @@ const AdminUser = () => {
     if (stateUserDetails && Object.keys(stateUserDetails).length > 0) {
       form.setFieldsValue(stateUserDetails);
     }
-  }, [stateUserDetails]);
+  }, [form, stateUserDetails]);
 
   useEffect(() => {
     if (rowSelected && isOpenDrawer) {
@@ -229,7 +228,11 @@ const AdminUser = () => {
       dataIndex: "phone",
       ...getColumnSearchProps("phone"),
     },
-
+    {
+      title: "Address",
+      dataIndex: "address",
+      ...getColumnSearchProps("address"),
+    },
     {
       title: "Action",
       dataIndex: "action",
@@ -330,6 +333,13 @@ const AdminUser = () => {
       }
     );
   };
+  const handleOnChangeAvatarDetails = async ({ fileList }) => {
+    const file = fileList[0];
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj);
+    }
+    setStateUserDetails({ ...stateUserDetails, avatar: file.preview });
+  };
   useEffect(() => {
     if (!isOpenDrawer) {
       setIsLoadingUpdate(false);
@@ -422,17 +432,24 @@ const AdminUser = () => {
                 name="phone"
               />
             </Form.Item>
-
             <Form.Item
-              label="Admin"
-              name="isAdmin"
+              label="Address"
+              name="address"
               rules={[
                 {
                   required: true,
-                  message: "Please select if the user is an admin!",
+                  message: "Please input your address!",
                 },
               ]}
             >
+              <Input
+                value={stateUserDetails.address}
+                onChange={handleOnChangeDetails}
+                name="address"
+              />
+            </Form.Item>
+
+            <Form.Item label="Admin" name="isAdmin">
               <Input
                 type="checkbox"
                 checked={stateUserDetails.isAdmin}
@@ -443,6 +460,42 @@ const AdminUser = () => {
                   })
                 }
               />
+            </Form.Item>
+
+            <Form.Item
+              label="Avatar"
+              name="avatar"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your avatar!",
+                },
+              ]}
+            >
+              <WrapperUploadFile
+                fileList={
+                  stateUserDetails.avatar
+                    ? [{ url: stateUserDetails.avatar }]
+                    : []
+                }
+                onChange={handleOnChangeAvatarDetails}
+                maxCount={1}
+              >
+                <Button>Select File</Button>
+                {stateUserDetails.avatar && (
+                  <img
+                    src={stateUserDetails?.avatar}
+                    style={{
+                      height: "60px",
+                      width: "60px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      marginLeft: "10px",
+                    }}
+                    alt="avatar"
+                  />
+                )}
+              </WrapperUploadFile>
             </Form.Item>
 
             <Form.Item label={null} wrapperCol={{ offset: 20, span: 16 }}>

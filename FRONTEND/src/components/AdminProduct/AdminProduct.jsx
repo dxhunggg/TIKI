@@ -124,7 +124,7 @@ const AdminProduct = () => {
     if (stateProductDetails && Object.keys(stateProductDetails).length > 0) {
       form.setFieldsValue(stateProductDetails);
     }
-  }, [stateProductDetails]);
+  }, [form, stateProductDetails]);
 
   useEffect(() => {
     if (rowSelected && isOpenDrawer) {
