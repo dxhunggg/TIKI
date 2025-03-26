@@ -117,65 +117,54 @@ const deleteManyProducts = (ids) => {
 const getAllProducts = (limit, page, sort, filter) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const totalProducts = await Product.countDocuments();
-      if (filter) {
-        const label = filter[0];
-        const allProductsFilter = await Product.find({
-          [label]: { $regex: filter[1] },
-        })
-          .limit(limit)
-          .skip(page * limit);
-        resolve({
-          status: "OK",
-          message: "Success",
-          data: allProductsFilter,
-          totalProducts: totalProducts,
-          currentPage: Number(page + 1),
-          totalPages: Math.ceil(totalProducts / limit),
-        });
+      let query = {};
+
+      // Xử lý filter
+      if (filter?.field && filter?.value) {
+        query = {
+          [filter.field]: { $regex: filter.value, $options: "i" },
+        };
       }
+
+      // Xử lý phân trang
+      const limitNumber = parseInt(limit) || 10;
+      const pageNumber = parseInt(page) || 0;
+
+      // Thực hiện query
+      let productsQuery = Product.find(query);
+
+      // Xử lý sort nếu có
       if (sort) {
         const objectSort = {};
         objectSort[sort[1]] = sort[0];
-        const allProductsSort = await Product.find()
-          .limit(limit)
-          .skip(page * limit)
-          .sort(objectSort);
-        resolve({
-          status: "OK",
-          message: "Success",
-          data: allProductsSort,
-          totalProducts: totalProducts,
-          currentPage: Number(page + 1),
-          totalPages: Math.ceil(totalProducts / limit),
-        });
+        productsQuery = productsQuery.sort(objectSort);
       }
-      const allProducts = await Product.find()
-        .limit(limit)
-        .skip(page * limit);
-      // .sort({name:sort});
+
+      // Thêm limit và skip
+      const products = await productsQuery
+        .limit(limitNumber)
+        .skip(pageNumber * limitNumber);
+
+      // Đếm tổng số sản phẩm sau khi filter
+      const filteredCount = await Product.countDocuments(query);
+
       resolve({
         status: "OK",
         message: "Success",
-        data: allProducts,
-        totalProducts: totalProducts,
-        currentPage: Number(page + 1),
-        totalPages: Math.ceil(totalProducts / limit),
+        data: products,
+        totalProducts: filteredCount,
+        currentPage: Number(pageNumber + 1),
+        totalPages: Math.ceil(filteredCount / limitNumber),
       });
     } catch (error) {
-      if (error.name === "ValidationError") {
-        reject({
-          status: 400,
-          message: "Invalid input.",
-          error: error.message,
-        });
-      } else {
-        reject({
-          status: 500,
-          message: "Failed to get all products.",
-          error: error.message,
-        });
-      }
+      reject({
+        status: error.name === "ValidationError" ? 400 : 500,
+        message:
+          error.name === "ValidationError"
+            ? "Invalid input"
+            : "Failed to get products",
+        error: error.message,
+      });
     }
   });
 };

@@ -69,7 +69,6 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   );
   const onSearch = (e) => {
     setSearch(e.target.value);
-    console.log("e", e.target.value);
     dispatch(searchProduct(e.target.value));
   };
   return (
@@ -88,7 +87,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
         }}
       >
         <Col span={5}>
-          <WrapperTestHeader>TIKI LAZADA</WrapperTestHeader>
+          <WrapperTestHeader>BÁCH HÓA XANH</WrapperTestHeader>
         </Col>
 
         {!isHiddenSearch && (

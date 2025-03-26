@@ -151,7 +151,7 @@ const SignInPage = () => {
             height="203px"
             width="203px"
           />
-          <h4>Mua sắm tại TIKI</h4>
+          <h4>Mua sắm tại Bách Hóa Xanh</h4>
         </WrapperContainerRight>
       </div>
     </div>

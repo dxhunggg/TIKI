@@ -5,15 +5,20 @@ const apiUrl = import.meta.env.VITE_API_URL_BACKEND;
 export const axiosJWT = axios.create();
 
 export const getAllProduct = async (search, limit) => {
-  let res = {};
-  if (search?.length > 0) {
-    res = await axios.get(
-      `${apiUrl}/product/get-all?filter=name&filter=${search}&limit=${limit}`
-    );
-  } else {
-    res = await axios.get(`${apiUrl}/product/get-all?limit=${limit}`);
+  try {
+    let res = {};
+    if (search?.length > 0) {
+      res = await axios.get(
+        `${apiUrl}/product/get-all?filter[field]=name&filter[value]=${search}&limit=${limit}`
+      );
+    } else {
+      res = await axios.get(`${apiUrl}/product/get-all?limit=${limit}`);
+    }
+    return res.data;
+  } catch (error) {
+    console.error("❌ API Fetch Error:", error);
+    return { status: "ERROR", data: [] };
   }
-  return res.data;
 };
 
 export const createProduct = async (data) => {

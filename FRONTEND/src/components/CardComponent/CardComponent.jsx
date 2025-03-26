@@ -1,5 +1,4 @@
 import React from "react";
-import { Card } from "antd";
 import {
   StyleNameProduct,
   WrapperCardStyle,
@@ -16,29 +15,24 @@ const CardComponent = (props) => {
     description,
     image,
     name,
-    price,
+    price = 0,
     rating,
     type,
     sold,
     discount,
   } = props;
-  
+
   return (
     <WrapperCardStyle
       hoverable
       style={{
         width: 200,
       }}
-      styles={{  // Thay đổi từ headStyle và bodyStyle sang styles
+      styles={{
         header: { width: "200px", height: "200px" },
-        body: { padding: "10px" }
+        body: { padding: "10px" },
       }}
-      cover={
-        <img
-          alt="example"
-          src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
-        />
-      }
+      cover={<img alt="example" src={image} />}
     >
       <StyleNameProduct>{name}</StyleNameProduct>
       <WrapperReportText>
@@ -49,8 +43,10 @@ const CardComponent = (props) => {
         <WrapperStyleTextSell> | Đã bán {sold || 1000}</WrapperStyleTextSell>
       </WrapperReportText>
       <WrapperPriceText>
-        <span style={{ marginRight: "8px" }}>{price}</span>
-        <WrapperDiscountText>{discount || 5}%</WrapperDiscountText>
+        <span style={{ marginRight: "8px" }}>
+          {price ? price.toLocaleString() : "Liên hệ"}
+        </span>
+        <WrapperDiscountText>- {discount || 5}%</WrapperDiscountText>
       </WrapperPriceText>
     </WrapperCardStyle>
   );

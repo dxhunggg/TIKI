@@ -14,13 +14,13 @@ export const WrapperButtonMore = styled(ButtonComponent)`
     color: #fff;
     background: rgb(13, 92, 182);
     span {
-      color: #fff;
+      color: inherit;
     }
   }
   width: 100%;
   text-align: center;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
 `;
-
 export const WrapperProducts = styled.div`
   display: flex;
   gap: 14px;

@@ -38,7 +38,7 @@ const SignUpPage = () => {
   useEffect(() => {
     if (isSuccess) {
       message.success("Register successfully!");
-      handleNavigateSignIn()
+      handleNavigateSignIn();
     } else if (isError) {
       message.error("Failed to register!");
     }
@@ -155,7 +155,7 @@ const SignUpPage = () => {
             height="203px"
             width="203px"
           />
-          <h4>Mua sắm tại tiki</h4>
+          <h4>Mua sắm tại Bách Hóa Xanh</h4>
         </WrapperContainerRight>
       </div>
     </div>
