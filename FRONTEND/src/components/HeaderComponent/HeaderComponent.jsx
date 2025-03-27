@@ -87,7 +87,13 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
         }}
       >
         <Col span={5}>
-          <WrapperTestHeader>BÁCH HÓA XANH</WrapperTestHeader>
+          <WrapperTestHeader
+            onClick={() => {
+              navigate("/");
+            }}
+          >
+            BÁCH HÓA XANH
+          </WrapperTestHeader>
         </Col>
 
         {!isHiddenSearch && (

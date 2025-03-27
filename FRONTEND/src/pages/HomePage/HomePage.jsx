@@ -22,8 +22,8 @@ const HomePage = () => {
   const [loading, setLoading] = useState(false);
   const arr = ["TV", "Tủ lạnh", "Laptop"];
   const fetchProductAll = async (context) => {
-    const limit = context?.queryKey[1];
-    const search = context?.queryKey[2];
+    const limit = context?.queryKey && context?.queryKey[1];
+    const search = context?.queryKey && context?.queryKey[2];
 
     const res = await ProductService.getAllProduct(search, limit);
 
@@ -75,7 +75,7 @@ const HomePage = () => {
             {products?.data?.map((product, index) => {
               return (
                 <CardComponent
-                  key={product.id || index}
+                  key={product._id || index}
                   countInStock={product.countInStock}
                   description={product.description}
                   image={product.image}
@@ -85,6 +85,7 @@ const HomePage = () => {
                   type={product.type}
                   sold={product.sold}
                   discount={product.discount}
+                  id={product._id}
                 />
               );
             })}
