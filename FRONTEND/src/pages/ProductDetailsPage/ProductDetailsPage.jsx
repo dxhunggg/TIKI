@@ -6,21 +6,21 @@ const ProductDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   return (
-    <div
-      style={{ padding: "0 120px", background: "#efefef", height: "1000px" }}
-    >
-      <h5>
-        <span
-          onClick={() => {
-            navigate("/");
-          }}
-          style={{ cursor: "pointer", fontWeight: "bold" }}
-        >
-          Trang chủ
-        </span>{" "}
-        - Chi tiết sản phẩm
-      </h5>
-      <ProductDetailsComponent idProduct={id} />
+    <div style={{ width: "100%", background: "#efefef", height: "100%" }}>
+      <div style={{ width: "1270px", height: "100%", margin: "0 auto" }}>
+        <h5 style={{ fontSize: "10px" }}>
+          <span
+            style={{ cursor: "pointer", fontWeight: "bold", fontSize: "10px" }}
+            onClick={() => {
+              navigate("/");
+            }}
+          >
+            Trang chủ
+          </span>{" "}
+          - Chi tiết sản phẩm
+        </h5>
+        <ProductDetailsComponent idProduct={id} />
+      </div>
     </div>
   );
 };
