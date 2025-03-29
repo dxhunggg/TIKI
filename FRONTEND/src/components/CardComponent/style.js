@@ -21,6 +21,7 @@ export const WrapperReportText = styled.div`
   color: rgb(128, 128, 137);
   display: flex;
   align-items: "center";
+  display: flex;
 `;
 
 export const WrapperPriceText = styled.div`

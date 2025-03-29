@@ -20,7 +20,7 @@ const HomePage = () => {
   const searchDebounce = useDebounce(searchProduct, 1000);
   const [limit, setLimit] = useState(6);
   const [loading, setLoading] = useState(false);
-  const arr = ["TV", "Tủ lạnh", "Laptop"];
+  const [typeProducts, setTypeProducts] = useState([]);
   const fetchProductAll = async (context) => {
     const limit = context?.queryKey && context?.queryKey[1];
     const search = context?.queryKey && context?.queryKey[2];
@@ -40,11 +40,20 @@ const HomePage = () => {
     keepPreviousData: true,
   });
 
+  const fetchAllTypeProduct = async () => {
+    const res = await ProductService.getAllTypeProduct();
+    if (res?.status === "OK") {
+      setTypeProducts(res?.data);
+    }
+  };
+  useEffect(() => {
+    fetchAllTypeProduct();
+  }, []);
   return (
     <Loading isLoading={loading}>
       <div style={{ width: "1270px", margin: "0 auto" }}>
         <WrapperTypeProduct>
-          {arr.map((item) => {
+          {typeProducts.map((item) => {
             return <TypeProduct key={item} name={item} />;
           })}
         </WrapperTypeProduct>

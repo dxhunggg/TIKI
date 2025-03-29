@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Form, Input, Modal, Space } from "antd";
+import { Button, Form, Input, Modal, Select, Space } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -9,7 +9,7 @@ import {
 import { WrapperHeader } from "../AdminUser/style";
 import TableComponent from "../TableComponent/TableComponent.jsx";
 import { WrapperUploadFile } from "./style";
-import { getBase64 } from "../../utils";
+import { getBase64, renderOptions } from "../../utils";
 import * as ProductService from "../../services/ProductService";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import Loading from "../LoadingComponent/Loading";
@@ -31,6 +31,7 @@ const AdminProduct = () => {
     countInStock: "",
     rating: "",
     type: "",
+    newType: "",
   });
   const [stateProductDetails, setStateProductDetails] = useState({
     name: "",
@@ -40,6 +41,7 @@ const AdminProduct = () => {
     countInStock: "",
     rating: "",
     type: "",
+    newType: "",
   });
   const searchInput = useRef(null);
   const user = useSelector((state) => state?.user);
@@ -99,9 +101,17 @@ const AdminProduct = () => {
     const res = await ProductService.getAllProduct();
     return res;
   };
+  const fetchAllTypeProduct = async () => {
+    const res = await ProductService.getAllTypeProduct();
+    return res;
+  };
   const queryProduct = useQuery({
     queryKey: ["products"],
     queryFn: getAllProducts,
+  });
+  const typeProduct = useQuery({
+    queryKey: ["type-product"],
+    queryFn: fetchAllTypeProduct,
   });
   const { isLoading: isLoadingProducts, data: products } = queryProduct;
   const fetchGetProductDetails = async (rowSelected) => {
@@ -355,14 +365,19 @@ const AdminProduct = () => {
     form.resetFields();
   };
   const onFinish = () => {
-    const isAnyFieldEmpty = Object.values(stateProduct).some(
-      (value) => value === ""
-    );
-    if (isAnyFieldEmpty) {
-      message.error("Vui lòng điền đầy đủ thông tin!");
-      return;
-    }
-    mutation.mutate(stateProduct, {
+    const params = {
+      name: stateProduct.name,
+      price: stateProduct.price,
+      description: stateProduct.description,
+      rating: stateProduct.rating,
+      image: stateProduct.image,
+      type:
+        stateProduct.type === "add_type"
+          ? stateProduct.newType
+          : stateProduct.type,
+      countInStock: stateProduct.countInStock,
+    };
+    mutation.mutate(params, {
       onSettled: () => {
         queryProduct.refetch();
       },
@@ -456,6 +471,13 @@ const AdminProduct = () => {
       setIsLoadingUpdate(false);
     }
   }, [isOpenDrawer]);
+
+  const handleChangeSelect = (value) => {
+    setStateProduct({
+      ...stateProduct,
+      type: value,
+    });
+  };
   return (
     <div>
       <WrapperHeader>Quản lý sản phẩm</WrapperHeader>
@@ -536,13 +558,26 @@ const AdminProduct = () => {
                 },
               ]}
             >
-              <Input
-                value={stateProduct.type}
-                onChange={handleOnChange}
+              <Select
                 name="type"
+                value={stateProduct.type}
+                onChange={handleChangeSelect}
+                options={renderOptions(typeProduct?.data?.data)}
               />
             </Form.Item>
-
+            {stateProduct.type === "add_type" && (
+              <Form.Item
+                label="New type"
+                name="newType"
+                rules={[{ required: true, message: "Please input your type!" }]}
+              >
+                <Input
+                  value={stateProduct.newType}
+                  onChange={handleOnChange}
+                  name="newType"
+                />
+              </Form.Item>
+            )}
             <Form.Item
               label="Count in stock"
               name="countInStock"

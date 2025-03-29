@@ -169,6 +169,23 @@ const getAllProducts = (limit, page, sort, filter) => {
   });
 };
 
+const getAllTypes = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const allTypes = await Product.distinct("type");
+      resolve({
+        status: "OK",
+        message: "Success",
+        data: allTypes,
+      });
+    } catch (error) {
+      reject({
+        status: error.name === "ValidationError" ? 400 : 500,
+        error: error.message,
+      });
+    }
+  });
+};
 const getDetailsProduct = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -202,4 +219,5 @@ module.exports = {
   deleteProduct,
   getAllProducts,
   deleteManyProducts,
+  getAllTypes,
 };
