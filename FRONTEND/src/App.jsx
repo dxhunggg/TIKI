@@ -9,7 +9,7 @@ import { isJsonString } from "./utils.js";
 import { jwtDecode } from "jwt-decode";
 import * as UserService from "./services/UserService.js";
 import { useDispatch, useSelector } from "react-redux";
-import { updateUser } from "./redux/userSlide.js";
+import { updateUser } from "./redux/slides/userSlide.js";
 import Loading from "./components/LoadingComponent/Loading.jsx";
 
 const App = () => {

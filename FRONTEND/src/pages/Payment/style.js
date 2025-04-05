@@ -1,4 +1,4 @@
-import { Checkbox } from "antd";
+import { Checkbox, Radio } from "antd";
 import styled from "styled-components";
 
 export const WrapperStyleHeader = styled.div`
@@ -13,25 +13,10 @@ export const WrapperStyleHeader = styled.div`
     font-size: 13px;
   }
 `;
-export const WrapperStyleHeaderDelivery = styled.div`
-  background: rgb(255, 255, 255);
-  padding: 9px 16px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  span {
-    color: rgb(36, 36, 36);
-    font-weight: 400;
-    font-size: 13px;
-  }
-  margin-bottom: 4px;
-`;
 
 export const WrapperLeft = styled.div`
   width: 910px;
 `;
-
-export const WrapperListOrder = styled.div``;
 
 export const WrapperItemOrder = styled.div`
   display: flex;
@@ -58,37 +43,47 @@ export const WrapperCountOrder = styled.div`
 export const WrapperRight = styled.div`
   width: 320px;
   margin-left: 20px;
+`;
+
+export const PaymentContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
+  width: 100%;
+  max-width: 1270px;
+  margin: 0 auto;
 `;
 
 export const WrapperInfo = styled.div`
-  padding: 17px 20px;
-  border-bottom: 1px solid #f5f5f5;
   background: #fff;
-  border-top-right-radius: 6px;
-  border-top-left-radius: 6px;
-  width: 100%;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 12px;
 `;
 
 export const WrapperTotal = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 17px 20px;
+  padding: 16px;
   background: #fff;
-  border-bottom-right-radius: 6px;
-  border-bottom-left-radius: 6px;
+  border-radius: 6px;
 `;
 
-export const CustomCheckbox = styled(Checkbox)`
-  .ant-checkbox-checked .ant-checkbox-inner {
-    background-color: #1677ff;
-    border-color: #1677ff;
-  }
-  .ant-checkbox:hover .ant-checkbox-inner {
-    border-color: #1677ff;
-  }
+export const Label = styled.span`
+  font-size: 12px;
+  color: #000;
+  font-weight: bold;
 `;
+
+export const WrapperRadio = styled(Radio.Group)`
+  margin-top: 6px;
+  background: rgb(240, 248, 255);
+  border: 1px solid rgb(194, 225, 255);
+  width: 100%;
+  border-radius: 4px;
+  padding: 16px;
+  font-weight: normal;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+

@@ -2,8 +2,16 @@ const ProductService = require("../services/ProductService");
 
 const createProduct = async (req, res) => {
   try {
-    const { name, image, type, price, countInStock, rating, description } =
-      req.body;
+    const {
+      name,
+      image,
+      type,
+      price,
+      countInStock,
+      rating,
+      description,
+      discount,
+    } = req.body;
 
     if (
       !name ||
@@ -12,7 +20,8 @@ const createProduct = async (req, res) => {
       !price ||
       !countInStock ||
       !rating ||
-      !description
+      !description ||
+      !discount
     ) {
       return res
         .status(200)
@@ -114,7 +123,7 @@ const getAllProducts = async (req, res) => {
   try {
     const { limit, page, sort, filter } = req.query;
     const response = await ProductService.getAllProducts(
-      Number(limit) || 8,
+      Number(limit) || null,
       Number(page) || 0,
       sort,
       filter

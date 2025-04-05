@@ -17,9 +17,9 @@ import ButtonInputSearch from "../ButtonInputSearch/ButtonInputSearch";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import * as UserService from "../../services/UserService";
-import { resetUser } from "../../redux/userSlide";
+import { resetUser } from "../../redux/slides/userSlide";
 import Loading from "../LoadingComponent/Loading";
-import { searchProduct } from "../../redux/productSlide";
+import { searchProduct } from "../../redux/slides/productSlide";
 
 const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   const navigate = useNavigate();
@@ -37,6 +37,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   const [userName, setUserName] = useState("");
   const [userAvatar, setUserAvatar] = useState("");
   const [search, setSearch] = useState("");
+  const order = useSelector((state) => state.order);
   useEffect(() => {
     setLoading(true);
     setUserName(user.name);
@@ -151,7 +152,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
               onClick={() => navigate("/order")}
               style={{ cursor: "pointer" }}
             >
-              <Badge count={4} size="small">
+              <Badge count={order?.orderItems?.length} size="small">
                 <ShoppingCartOutlined
                   style={{ fontSize: "30px", color: "#fff" }}
                 />

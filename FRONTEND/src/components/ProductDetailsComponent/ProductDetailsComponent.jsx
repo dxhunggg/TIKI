@@ -20,11 +20,17 @@ import { useQuery } from "@tanstack/react-query";
 import Loading from "../LoadingComponent/Loading.jsx";
 import { render } from "react-dom";
 import { convertPrice } from "../../utils.js";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import { addOrderProduct } from "../../redux/slides/orderSlide.js";
 
 const ProductDetailsComponent = ({ idProduct }) => {
-  const [numProduct, setNumProduct] = useState();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const [numProduct, setNumProduct] = useState(1);
   const user = useSelector((state) => state.user);
+  const order = useSelector((state) => state.order);
   const onChange = (value) => {
     setNumProduct(Number(value));
   };
@@ -50,7 +56,33 @@ const ProductDetailsComponent = ({ idProduct }) => {
       setNumProduct(numProduct - 1);
     }
   };
-
+  const handleAddOrderProduct = () => {
+    if (!user?.id) {
+      navigate("/sign-in", { state: location?.pathname });
+    } else {
+      const orderRedux = order?.orderItems?.find(
+        (item) => item.product === productDetails?._id
+      );
+      if (
+        orderRedux?.amount + numProduct <= orderRedux?.countInstock ||
+        (!orderRedux && productDetails?.countInStock > 0)
+      ) {
+        dispatch(
+          addOrderProduct({
+            orderItem: {
+              name: productDetails?.name,
+              amount: numProduct,
+              image: productDetails?.image,
+              price: productDetails?.price,
+              product: productDetails?._id,
+              discount: productDetails?.discount,
+              countInstock: productDetails?.countInStock,
+            },
+          })
+        );
+      }
+    }
+  };
   return (
     <Loading isLoading={isLoading}>
       <Row style={{ padding: "16px", background: "#fff", borderRadius: "4px" }}>
@@ -146,15 +178,20 @@ const ProductDetailsComponent = ({ idProduct }) => {
                     background: "transparent",
                     cursor: "pointer",
                   }}
-                  onClick={() => handleChangeCount("decrease")}
+                  onClick={() =>
+                    handleChangeCount("decrease", numProduct === 1)
+                  }
+                  disabled={numProduct <= 1}
                 >
                   <MinusOutlined style={{ color: "#000", fontSize: "20px" }} />
                 </button>
                 <WrapperInputNumber
-                  size="small"
                   onChange={onChange}
                   defaultValue={1}
+                  max={productDetails?.countInStock}
+                  min={1}
                   value={numProduct}
+                  size="small"
                 />
                 <button
                   style={{
@@ -162,7 +199,12 @@ const ProductDetailsComponent = ({ idProduct }) => {
                     background: "transparent",
                     cursor: "pointer",
                   }}
-                  onClick={() => handleChangeCount("increase")}
+                  onClick={() =>
+                    handleChangeCount(
+                      "increase",
+                      numProduct === productDetails?.countInStock
+                    )
+                  }
                 >
                   <PlusOutlined style={{ color: "#000", fontSize: "20px" }} />
                 </button>
@@ -178,6 +220,9 @@ const ProductDetailsComponent = ({ idProduct }) => {
                 width: "220px",
                 border: "none",
                 borderRadius: "4px",
+              }}
+              onClick={() => {
+                handleAddOrderProduct();
               }}
               textButton={"Chọn mua"}
               styleTextButton={{

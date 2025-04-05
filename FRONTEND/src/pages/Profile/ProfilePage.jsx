@@ -13,7 +13,7 @@ import * as UserService from "../../services/UserService";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import Loading from "../../components/LoadingComponent/Loading";
 import * as message from "../../components/Message/Message";
-import { updateUser } from "../../redux/userSlide";
+import { updateUser } from "../../redux/slides/userSlide";
 import { Button, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { getBase64 } from "../../utils";
@@ -24,6 +24,7 @@ const ProfilePage = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+
   const [avatar, setAvatar] = useState("");
   const mutation = useMutationHooks((data) => {
     const { id, access_token, ...rests } = data;
@@ -59,6 +60,7 @@ const ProfilePage = () => {
   const handleOnChangeAddress = (value) => {
     setAddress(value);
   };
+
   const handleOnChangeAvatar = async ({ fileList }) => {
     const file = fileList[0];
     if (!file.url && !file.preview) {

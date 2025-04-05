@@ -9,16 +9,17 @@ import InputForm from "../../components/InputForm/InputForm";
 import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
 import imageLogo from "../../assets/images/logo-login.png";
 import { EyeFilled, EyeInvisibleFilled } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import * as UserService from "../../services/UserService";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import Loading from "../../components/LoadingComponent/Loading";
 import * as message from "../../components/Message/Message";
 import { jwtDecode } from "jwt-decode";
 import { useDispatch } from "react-redux";
-import { updateUser } from "../../redux/userSlide";
+import { updateUser } from "../../redux/slides/userSlide";
 const SignInPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,8 +28,11 @@ const SignInPage = () => {
   const { data, isLoading = false, isSuccess, isError } = mutation;
   useEffect(() => {
     if (isSuccess) {
-      message.success("Login successfully!");
-      navigate("/");
+      if (location?.state) {
+        navigate(location?.state);
+      } else {
+        navigate("/");
+      }
       localStorage.setItem("access_token", JSON.stringify(data?.access_token));
       const decoded = jwtDecode(data?.access_token);
       if (decoded?.id) {

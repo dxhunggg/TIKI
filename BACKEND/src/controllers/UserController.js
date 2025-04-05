@@ -74,7 +74,6 @@ const updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
     const data = req.body;
-
     if (!userId) {
       return res
         .status(200)

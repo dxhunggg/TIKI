@@ -2,8 +2,16 @@ const Product = require("../models/ProductModel");
 
 const createProduct = (newProduct) => {
   return new Promise(async (resolve, reject) => {
-    const { name, image, type, price, countInStock, rating, description } =
-      newProduct;
+    const {
+      name,
+      image,
+      type,
+      price,
+      countInStock,
+      rating,
+      description,
+      discount,
+    } = newProduct;
 
     try {
       const checkProduct = await Product.findOne({
@@ -24,6 +32,7 @@ const createProduct = (newProduct) => {
         countInStock,
         rating,
         description,
+        discount,
       });
       if (newProduct) {
         resolve({
@@ -141,9 +150,14 @@ const getAllProducts = (limit, page, sort, filter) => {
       }
 
       // Thêm limit và skip
-      const products = await productsQuery
-        .limit(limitNumber)
-        .skip(pageNumber * limitNumber);
+      let products;
+      if (!limit) {
+        products = await productsQuery;
+      } else {
+        products = await productsQuery
+          .limit(limitNumber)
+          .skip(pageNumber * limitNumber);
+      }
 
       // Đếm tổng số sản phẩm sau khi filter
       const filteredCount = await Product.countDocuments(query);
