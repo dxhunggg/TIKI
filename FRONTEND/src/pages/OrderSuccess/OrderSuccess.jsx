@@ -99,6 +99,11 @@ const OrderSuccess = () => {
                   );
                 })}
               </WrapperItemOrderInfo>
+              <div>
+                <span style={{ fontSize: "16px", color: "red" }}>
+                  Tổng tiền: {convertPrice(state?.totalPriceMemo)}
+                </span>
+              </div>
             </WrapperContainer>
           </div>
         </div>

@@ -47,9 +47,7 @@ const SignInPage = () => {
     try {
       const res = await UserService.getDetailsUser(id, token);
       dispatch(updateUser({ ...res.data, access_token: token }));
-    } catch (err) {
-      console.error("Lỗi khi lấy thông tin user:", err);
-    }
+    } catch (err) {}
   };
 
   const handleNavigateSignUp = () => {

@@ -16,7 +16,6 @@ export const getAllProduct = async (search, limit) => {
     }
     return res.data;
   } catch (error) {
-    console.error("❌ API Fetch Error:", error);
     return { status: "ERROR", data: [] };
   }
 };
@@ -25,7 +24,6 @@ export const getProductType = async (type, page, limit) => {
   if (type) {
     const res = await axios.get(
       `${apiUrl}/product/get-all?filter[field]=type&filter[value]=${type}&limit=${limit}&page=${page}`
-
     );
     return res.data;
   }

@@ -4,7 +4,7 @@ import {
   WrapperContentPopUp,
   WrapperHeader,
   WrapperHeaderAccount,
-  WrapperTestHeader,
+  WrapperTextHeader,
   WrapperTextHeaderSmall,
 } from "./style";
 import Search from "antd/es/input/Search";
@@ -28,7 +28,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   };
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
+
   const handleLogout = async () => {
     await UserService.logoutUser();
     dispatch(resetUser());
@@ -37,6 +37,8 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   const [userName, setUserName] = useState("");
   const [userAvatar, setUserAvatar] = useState("");
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isOpenPopup, setIsOpenPopup] = useState(false);
   const order = useSelector((state) => state.order);
   useEffect(() => {
     setLoading(true);
@@ -47,27 +49,41 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
 
   const content = (
     <div>
-      <WrapperContentPopUp
-        onClick={() => {
-          navigate("/profile-user");
-        }}
-      >
-        Thông tin người dùng
-      </WrapperContentPopUp>
-      {user?.isAdmin && (
-        <WrapperContentPopUp
-          onClick={() => {
-            navigate("/system-admin");
-          }}
-        >
-          Quản lí hệ thống
+      <div>
+        <WrapperContentPopUp onClick={() => handleClickNavigate("profile")}>
+          Thông tin người dùng
         </WrapperContentPopUp>
-      )}
-      <WrapperContentPopUp onClick={handleLogout}>
-        Đăng xuất
-      </WrapperContentPopUp>
+        {user?.isAdmin && (
+          <WrapperContentPopUp onClick={() => handleClickNavigate("admin")}>
+            Quản lí hệ thống
+          </WrapperContentPopUp>
+        )}
+        <WrapperContentPopUp onClick={() => handleClickNavigate(`my-order`)}>
+          Đơn hàng của tôi
+        </WrapperContentPopUp>
+        <WrapperContentPopUp onClick={() => handleClickNavigate()}>
+          Đăng xuất
+        </WrapperContentPopUp>
+      </div>
     </div>
   );
+  const handleClickNavigate = (type) => {
+    if (type === "profile") {
+      navigate("/profile-user");
+    } else if (type === "admin") {
+      navigate("/system-admin");
+    } else if (type === "my-order") {
+      navigate("/my-order", {
+        state: {
+          id: user?.id,
+          token: user?.access_token,
+        },
+      });
+    } else {
+      handleLogout();
+    }
+    setIsOpenPopup(false);
+  };
   const onSearch = (e) => {
     setSearch(e.target.value);
     dispatch(searchProduct(e.target.value));
@@ -88,13 +104,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
         }}
       >
         <Col span={5}>
-          <WrapperTestHeader
-            onClick={() => {
-              navigate("/");
-            }}
-          >
-            BÁCH HÓA XANH
-          </WrapperTestHeader>
+          <WrapperTextHeader to="/">BÁCH HÓA XANH</WrapperTextHeader>
         </Col>
 
         {!isHiddenSearch && (
@@ -125,8 +135,16 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
               )}
               {user?.access_token ? (
                 <>
-                  <Popover content={content} trigger="click">
-                    <div style={{ cursor: "pointer" }}>
+                  <Popover content={content} trigger="click" open={isOpenPopup}>
+                    <div
+                      style={{
+                        cursor: "pointer",
+                        maxWidth: 100,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                      onClick={() => setIsOpenPopup((prev) => !prev)}
+                    >
                       {userName.length ? userName : user.email}
                     </div>
                   </Popover>

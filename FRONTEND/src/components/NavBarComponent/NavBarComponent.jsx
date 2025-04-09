@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Checkbox, Col, Rate, Row } from "antd";
 import {
   WrapperContent,
@@ -6,8 +6,22 @@ import {
   WrapperTextPrice,
   WrapperTextValue,
 } from "./style";
+import * as ProductService from "../../services/ProductService";
 
 const NavBarComponent = () => {
+  const [typeProducts, setTypeProducts] = useState([]);
+  
+  const fetchAllTypeProduct = async () => {
+    const res = await ProductService.getAllTypeProduct();
+    if (res?.status === "OK") {
+      setTypeProducts(res?.data);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllTypeProduct();
+  }, []);
+
   const onChange = () => {};
   const renderContent = (type, options) => {
     switch (type) {
@@ -27,8 +41,12 @@ const NavBarComponent = () => {
             onChange={onChange}
           >
             {options.map((option, index) => (
-              <Checkbox key={index} style={{ marginLeft: 0 }} value={option.value}>
-                {option.lable}
+              <Checkbox
+                key={index}
+                style={{ marginLeft: 0 }}
+                value={option.value}
+              >
+                {option.label}
               </Checkbox>
             ))}
           </Checkbox.Group>
@@ -56,11 +74,12 @@ const NavBarComponent = () => {
         return {};
     }
   };
+  
   return (
     <div>
-      <WrapperLabelText>Label</WrapperLabelText>
+      <WrapperLabelText>Danh mục sản phẩm</WrapperLabelText>
       <WrapperContent>
-        {renderContent("text", ["Tu lanh", "TV", "May giat"])}
+        {renderContent("text", typeProducts)}
       </WrapperContent>
     </div>
   );

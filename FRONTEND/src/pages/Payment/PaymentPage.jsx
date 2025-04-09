@@ -1,4 +1,4 @@
-import { Checkbox, Form, Input, Radio } from "antd";
+import { Form, Input, Radio } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Label,
@@ -8,34 +8,27 @@ import {
   WrapperRight,
   WrapperTotal,
 } from "./style";
-import { DeleteOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
-import { WrapperInputNumber } from "../../components/ProductDetailsComponent/style";
 import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
 import { convertPrice } from "../../utils";
 import ModalComponent from "../../components/ModalComponent/ModalComponent";
 import Loading from "../../components/LoadingComponent/Loading";
-import StepComponent from "../../components/StepComponent/StepComponent";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  removeOrderProduct,
-  increaseAmount,
-  decreaseAmount,
-  removeAllOrderProduct,
-  selectedOrder,
-} from "../../redux/slides/orderSlide";
+import { removeAllOrderProduct } from "../../redux/slides/orderSlide";
 import { useNavigate } from "react-router-dom";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import * as UserService from "../../services/UserService";
 import { updateUser } from "../../redux/slides/userSlide";
 import * as message from "../../components/Message/Message";
 import * as OrderService from "../../services/OrderService";
-import { store } from "../../redux/store";
+import * as PaymentService from "../../services/PaymentService";
+import { PayPalButton } from "react-paypal-button-v2";
 
 const PaymentPage = () => {
   const order = useSelector((state) => state.order);
   const user = useSelector((state) => state.user);
   const [delivery, setDelivery] = useState("fast");
   const [payment, setPayment] = useState("later_money");
+  const [sdkReady, setSdkReady] = useState(false);
 
   const [isOpenModalUpdateInfo, setIsOpenModalUpdateInfo] = useState(false);
   const [stateUserDetails, setStateUserDetails] = useState({
@@ -48,30 +41,57 @@ const PaymentPage = () => {
   const dispatch = useDispatch();
 
   const handleAddOrder = () => {
+    // Hiển thị chi tiết từng sản phẩm
+    order?.orderItemsSelected?.forEach((item, index) => {});
+
     if (
       user?.access_token &&
       order?.orderItemsSelected &&
+      order?.orderItemsSelected.length > 0 &&
       user?.name &&
       user?.address &&
       user?.phone &&
       priceMemo &&
       user?.id
     ) {
-      mutationAddOrder.mutate({
-        token: user?.access_token,
-        orderItems: order?.orderItemsSelected,
-        fullName: user?.name,
-        address: user?.address,
-        phone: user?.phone,
-        paymentMethod: payment,
-        itemsPrice: priceMemo,
-        shippingPrice: deliveryPriceMemo,
-        totalPrice: totalPriceMemo,
-        user: user?.id,
-        email: user?.email,
-      });
+      try {
+        const formattedOrderItems = order?.orderItemsSelected.map((item) => ({
+          name: item.name || "Sản phẩm",
+          amount: item.amount || 1,
+          image: item.image || "",
+          price: item.price || 0,
+          product: item.product,
+          discount: item.discount || 0,
+        }));
+
+        // Data gửi đi
+        const orderData = {
+          orderItems: formattedOrderItems,
+          fullName: user?.name,
+          address: user?.address,
+          phone: user?.phone,
+          paymentMethod: payment,
+          itemsPrice: priceMemo,
+          shippingPrice: deliveryPriceMemo,
+          totalPrice: totalPriceMemo,
+          user: user?.id,
+          email: user?.email,
+        };
+
+        mutationAddOrder.mutate({
+          token: user?.access_token,
+          ...orderData,
+        });
+      } catch (error) {
+        message.error(
+          "Đặt hàng thất bại: " + (error.message || "Lỗi không xác định")
+        );
+      }
+    } else {
+      message.error("Vui lòng điền đầy đủ thông tin và chọn sản phẩm");
     }
   };
+
   const mutationUpdate = useMutationHooks((data) => {
     const { id, token, ...rests } = data;
     const res = UserService.updateUser(id, { ...rests }, token);
@@ -105,10 +125,10 @@ const PaymentPage = () => {
           totalPriceMemo: totalPriceMemo,
         },
       });
-    } else if (isError) {
-      message.error();
+    } else if (isError || (dataAdd && dataAdd.status === "ERROR")) {
+      message.error(dataAdd?.message || "Đặt hàng không thành công");
     }
-  }, [isSuccess, isError]);
+  }, [isSuccess, isError, dataAdd]);
   const handleCancelUpdate = () => {
     setStateUserDetails({
       name: "",
@@ -190,6 +210,43 @@ const PaymentPage = () => {
       Number(priceMemo) - Number(priceDiscountMemo) + Number(deliveryPriceMemo)
     );
   }, [priceMemo, priceDiscountMemo, deliveryPriceMemo]);
+  const onSuccessPaypal = (details, data) => {
+    mutationAddOrder.mutate({
+      token: user?.access_token,
+      orderItems: order?.orderItemsSelected,
+      fullName: user?.name,
+      address: user?.address,
+      phone: user?.phone,
+      paymentMethod: payment,
+      itemsPrice: priceMemo,
+      shippingPrice: deliveryPriceMemo,
+      totalPrice: totalPriceMemo,
+      user: user?.id,
+      isPaid: true,
+      paidAt: details.update_time,
+      // email: user?.email,
+    });
+  };
+  const addPaypalScript = async () => {
+    const { data } = await PaymentService.getConfig();
+    const script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = `https://www.paypal.com/sdk/js?client-id=${data}`;
+    script.async = true;
+    script.onload = () => {
+      setSdkReady(true);
+    };
+    document.body.appendChild(script);
+  };
+
+  useEffect(() => {
+    if (!window.paypal) {
+      addPaypalScript();
+    } else {
+      setSdkReady(true);
+    }
+  }, []);
+
   return (
     <div style={{ background: "#f5f5fa", with: "100%", height: "100vh" }}>
       <Loading isLoading={isLoadingAddOrder}>
@@ -323,23 +380,35 @@ const PaymentPage = () => {
                   </span>
                 </WrapperTotal>
               </div>
-              <ButtonComponent
-                onClick={() => handleAddOrder()}
-                size={40}
-                styleButton={{
-                  background: "rgb(255, 57, 69)",
-                  height: "48px",
-                  width: "320px",
-                  border: "none",
-                  borderRadius: "4px",
-                }}
-                textButton={"Đặt hàng"}
-                styleTextButton={{
-                  color: "#fff",
-                  fontSize: "15px",
-                  fontWeight: "700",
-                }}
-              />
+              {payment === "paypal" && sdkReady ? (
+                <div style={{ width: "320px" }}>
+                  <PayPalButton
+                    amount={Math.round(totalPriceMemo / 30000)}
+                    onSuccess={onSuccessPaypal}
+                    onError={() => {
+                      alert("Error");
+                    }}
+                  />
+                </div>
+              ) : (
+                <ButtonComponent
+                  onClick={() => handleAddOrder()}
+                  size={40}
+                  styleButton={{
+                    background: "rgb(255, 57, 69)",
+                    height: "48px",
+                    width: "320px",
+                    border: "none",
+                    borderRadius: "4px",
+                  }}
+                  textButton={"Đặt hàng"}
+                  styleTextButton={{
+                    color: "#fff",
+                    fontSize: "15px",
+                    fontWeight: "700",
+                  }}
+                />
+              )}
             </WrapperRight>
           </div>
         </div>

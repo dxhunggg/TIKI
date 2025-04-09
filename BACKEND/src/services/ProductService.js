@@ -63,7 +63,6 @@ const updateProduct = (id, data) => {
       const updatedProduct = await Product.findByIdAndUpdate(id, data, {
         new: true,
       });
-      console.log("Updating product with data:", data);
       resolve({
         status: "OK",
         message: "Success",
@@ -220,7 +219,7 @@ const getDetailsProduct = (id) => {
     } catch (error) {
       reject({
         status: 500,
-        message: "Failed to delete product.",
+        message: "Failed to get product.",
         error: error,
       });
     }

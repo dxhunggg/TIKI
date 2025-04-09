@@ -10,7 +10,7 @@ const TableComponent = (props) => {
     data: dataSource = [],
     isLoading = false,
     columns = [],
-    handleDelteMany,
+    handleDeleteMany,
   } = props;
   const [rowSelectedKeys, setRowSelectedKeys] = useState([]);
   const newColumnExport = useMemo(() => {
@@ -29,7 +29,7 @@ const TableComponent = (props) => {
     // }),
   };
   const handleDeleteAll = () => {
-    handleDelteMany(rowSelectedKeys);
+    handleDeleteMany(rowSelectedKeys);
   };
   const exportExcel = () => {
     const excel = new Excel();

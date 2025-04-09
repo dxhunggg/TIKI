@@ -32,11 +32,8 @@ const App = () => {
             );
             handleGetDetailsUser(decoded.id, data.access_token);
           } else {
-            console.log("⚠️ Không nhận được access_token mới!");
           }
-        } catch (error) {
-          console.error("❌ Lỗi khi refresh token:", error);
-        }
+        } catch (error) {}
       } else if (decoded?.id) {
         handleGetDetailsUser(decoded.id, storageData);
       }
@@ -68,11 +65,8 @@ const App = () => {
       const { decoded } = handleDecoded();
 
       if (decoded?.exp && decoded.exp < currentTime) {
-        console.log("🔥 Token hết hạn, đang refresh...");
         try {
           const data = await UserService.refreshToken();
-          console.log("🚀 API refresh response:", data);
-
           if (data?.access_token) {
             localStorage.setItem(
               "access_token",
@@ -80,10 +74,8 @@ const App = () => {
             );
             config.headers["token"] = `Bearer ${data.access_token}`;
           } else {
-            console.log("⚠️ Không nhận được access_token mới!");
           }
         } catch (error) {
-          console.error("❌ Lỗi khi refresh token:", error);
           return Promise.reject(error);
         }
       }
@@ -100,9 +92,7 @@ const App = () => {
       const res = await UserService.getDetailsUser(id, token);
       dispatch(updateUser({ ...res?.data, access_token: token }));
       setIsLoading(false);
-    } catch (error) {
-      console.error("Lỗi khi lấy thông tin user:", error);
-    }
+    } catch (error) {}
   };
 
   const fetchApi = async () => {

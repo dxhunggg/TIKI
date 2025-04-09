@@ -9,7 +9,7 @@ const createUser = async (req, res) => {
     if (!email || !password || !confirmPassword) {
       return res
         .status(200)
-        .json({ status: "ERR", message: "All fields are required." });
+        .json({ status: "ERR", message: "All fields user are required." });
     } else if (!isCheckEmail) {
       return res
         .status(200)
@@ -46,7 +46,7 @@ const loginUser = async (req, res) => {
     if (!email || !password) {
       return res
         .status(200)
-        .json({ status: "ERR", message: "All fields are required." });
+        .json({ status: "ERR", message: "All fields user are required." });
     } else if (!isCheckEmail) {
       return res
         .status(200)

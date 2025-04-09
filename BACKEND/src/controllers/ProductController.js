@@ -25,7 +25,7 @@ const createProduct = async (req, res) => {
     ) {
       return res
         .status(200)
-        .json({ status: "ERR", message: "All fields are required." });
+        .json({ status: "ERR", message: "All fields product are required." });
     }
 
     const response = await ProductService.createProduct(req.body);

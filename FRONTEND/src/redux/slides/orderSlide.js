@@ -14,7 +14,7 @@ const initialState = {
   paidAt: "",
   isDelivered: false,
   deliveredAt: "",
-  // isSucessOrder: false,
+  isSucessOrder: false,
 };
 
 export const orderSlide = createSlice({
