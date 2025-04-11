@@ -196,7 +196,6 @@ const ProductDetailsComponent = ({ idProduct }) => {
           <WrapperAddressProduct>
             <span>Giao đến </span>
             <span className="address">{user?.address}</span>
-            <span className="change-address"> Đổi địa chỉ</span>
           </WrapperAddressProduct>
           <LikeButtonComponent
             dataHref={

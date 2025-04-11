@@ -28,23 +28,27 @@ const ProfilePage = () => {
   const [avatar, setAvatar] = useState("");
   const mutation = useMutationHooks((data) => {
     const { id, access_token, ...rests } = data;
-    UserService.updateUser(id, rests, access_token);
+    return UserService.updateUser(id, access_token, rests);
   });
   const dispatch = useDispatch();
   const { data, isLoading = false, isSuccess, isError } = mutation;
   useEffect(() => {
-    if (isSuccess) {
+    if (isSuccess && data) {
       message.success("Cập nhật thông tin thành công!");
       handleGetDetailsUser(user.id, user.access_token);
     } else if (isError) {
       message.error("Có lỗi xảy ra, vui lòng thử lại!");
     }
-  }, [isSuccess, isError]);
+  }, [isSuccess, isError, data]);
   const handleGetDetailsUser = async (id, token) => {
     try {
       const res = await UserService.getDetailsUser(id, token);
-      dispatch(updateUser({ ...res.data, access_token: token }));
-    } catch (err) {}
+      if (res?.data) {
+        dispatch(updateUser({ ...res.data, access_token: token }));
+      }
+    } catch (err) {
+      message.error("Không thể lấy thông tin người dùng, vui lòng thử lại!");
+    }
   };
   const handleOnChangeEmail = (value) => {
     setEmail(value);

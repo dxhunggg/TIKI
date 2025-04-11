@@ -101,7 +101,7 @@ const OrderPage = () => {
   };
   const mutationUpdate = useMutationHooks((data) => {
     const { id, token, ...rests } = data;
-    const res = UserService.updateUser(id, { ...rests }, token);
+    const res = UserService.updateUser(id, token, { ...rests });
     return res;
   });
 
