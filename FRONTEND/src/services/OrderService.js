@@ -42,7 +42,34 @@ export const cancelOrder = async (id, access_token) => {
 };
 
 export const getAllOrder = async (access_token) => {
-  const res = await axiosJWT.get(`${apiUrl}/order/get-all-order`, {
+  const res = await axiosJWT.get(`${apiUrl}/order/get-all-order-admin`, {
+    headers: {
+      token: `Bearer ${access_token}`,
+    },
+  });
+  return res.data;
+};
+
+export const confirmOrder = async (id, access_token) => {
+  const res = await axiosJWT.put(`${apiUrl}/order/confirm-order/${id}`, {}, {
+    headers: {
+      token: `Bearer ${access_token}`,
+    },
+  });
+  return res.data;
+};
+
+export const adminConfirmOrder = async (id, access_token) => {
+  const res = await axiosJWT.put(`${apiUrl}/order/admin/confirm-order/${id}`, {}, {
+    headers: {
+      token: `Bearer ${access_token}`,
+    },
+  });
+  return res.data;
+};
+
+export const adminCancelOrder = async (id, access_token) => {
+  const res = await axiosJWT.put(`${apiUrl}/order/admin/cancel-order/${id}`, {}, {
     headers: {
       token: `Bearer ${access_token}`,
     },

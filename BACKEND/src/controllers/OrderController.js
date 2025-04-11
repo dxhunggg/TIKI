@@ -52,12 +52,10 @@ const createOrder = async (req, res) => {
       !address ||
       !phone
     ) {
-      return res
-        .status(200)
-        .json({
-          status: "ERROR",
-          message: "Thiếu thông tin đơn hàng. Vui lòng kiểm tra lại.",
-        });
+      return res.status(200).json({
+        status: "ERROR",
+        message: "Thiếu thông tin đơn hàng. Vui lòng kiểm tra lại.",
+      });
     }
 
     const response = await OrderService.createOrder(req.body);
@@ -128,9 +126,62 @@ const cancelOrder = async (req, res) => {
     });
   }
 };
+const getAllOrderAdmin = async (req, res) => {
+  try {
+    const data = await OrderService.getAllOrderAdmin();
+    return res.status(200).json(data);
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: "ERR",
+      message: error.message || "Internal Server Error.",
+      error: error.error || null,
+    });
+  }
+};
+const adminConfirmOrder = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    if (!orderId) {
+      return res
+        .status(200)
+        .json({ status: "ERR", message: "Order ID is required." });
+    }
+
+    const response = await OrderService.adminConfirmOrder(orderId);
+    return res.status(200).json(response);
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: "ERR",
+      message: error.message || "Internal Server Error.",
+      error: error.error || null,
+    });
+  }
+};
+const adminCancelOrder = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    if (!orderId) {
+      return res
+        .status(200)
+        .json({ status: "ERR", message: "Order ID is required." });
+    }
+
+    const response = await OrderService.adminCancelOrder(orderId);
+    return res.status(200).json(response);
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: "ERR",
+      message: error.message || "Internal Server Error.",
+      error: error.error || null,
+    });
+  }
+};
 module.exports = {
   createOrder,
   getAllOrder,
   getDetailsOrder,
   cancelOrder,
+  getAllOrderAdmin,
+  adminConfirmOrder,
+  adminCancelOrder,
 };

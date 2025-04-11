@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import {
   AppstoreOutlined,
   SettingOutlined,
+  ShoppingCartOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import { Menu } from "antd";
 import HeaderComponent from "../../components/HeaderComponent/HeaderComponent";
 import AdminUser from "../../components/AdminUser/AdminUser";
 import AdminProduct from "../../components/AdminProduct/AdminProduct";
+import AdminOrder from "../../components/AdminOrder/AdminOrder";
 const items = [
   {
     key: "user",
@@ -18,6 +20,11 @@ const items = [
     key: "product",
     label: "Sản phẩm",
     icon: <AppstoreOutlined />,
+  },
+  {
+    key: "order",
+    label: "Đơn hàng",
+    icon: <ShoppingCartOutlined />,
   },
 ];
 const AdminPage = () => {
@@ -32,6 +39,8 @@ const AdminPage = () => {
         return <AdminUser />;
       case "product":
         return <AdminProduct />;
+      case "order":
+        return <AdminOrder />;
       default:
         return <></>;
     }

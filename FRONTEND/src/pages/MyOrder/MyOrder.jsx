@@ -50,6 +50,11 @@ const MyOrderPage = () => {
   });
 
   const handleCancelOrder = (order) => {
+    if (order.isDelivered || order.isCancelled) {
+      message.error("Không thể hủy đơn hàng đã giao hoặc đã bị hủy");
+      return;
+    }
+
     mutation.mutate(
       {
         id: order._id,
@@ -140,11 +145,13 @@ const MyOrderPage = () => {
                       </span>
                       <span
                         style={{
-                          color: "rgb(90, 32, 193)",
+                          color: order.isCancelled ? "rgb(255, 66, 78)" : "rgb(90, 32, 193)",
                           fontWeight: "bold",
                         }}
                       >{`${
-                        order.isDelivered ? "Đã giao hàng" : "Chưa giao hàng"
+                        order.isCancelled 
+                          ? "Đã hủy bởi người bán hàng" 
+                          : (order.isDelivered ? "Đã giao hàng" : "Chưa giao hàng")
                       }`}</span>
                     </div>
                     <div>
@@ -185,12 +192,15 @@ const MyOrderPage = () => {
                           height: "36px",
                           border: "1px solid rgb(26,148,255)",
                           borderRadius: "4px",
+                          opacity: (order.isDelivered || order.isCancelled) ? "0.5" : "1",
+                          cursor: (order.isDelivered || order.isCancelled) ? "not-allowed" : "pointer",
                         }}
                         textButton={"Hủy đơn hàng"}
                         styleTextButton={{
                           color: "rgb(26,148,255)",
                           fontSize: "14px",
                         }}
+                        disabled={order.isDelivered || order.isCancelled}
                       ></ButtonComponent>
                       <ButtonComponent
                         onClick={() => handleDetailsOrder(order?._id)}

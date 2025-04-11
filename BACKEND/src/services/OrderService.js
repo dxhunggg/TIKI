@@ -196,9 +196,134 @@ const cancelOrder = (id) => {
   });
 };
 
+const getAllOrderAdmin = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const allOrders = await Order.find();
+      resolve({
+        status: "OK",
+        message: "Success",
+        data: allOrders,
+      });
+    } catch (error) {
+      reject({
+        status: 500,
+        message: "Failed to get all orders.",
+        error: error,
+      });
+    }
+  });
+};
+
+const adminConfirmOrder = (id) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const order = await Order.findById(id);
+
+      if (!order) {
+        resolve({
+          status: "ERR",
+          message: "Không tìm thấy đơn hàng.",
+        });
+        return;
+      }
+
+      if (order.isDelivered) {
+        resolve({
+          status: "ERR",
+          message: "Đơn hàng đã được giao.",
+        });
+        return;
+      }
+
+      const updatedOrder = await Order.findByIdAndUpdate(
+        id,
+        { 
+          isDelivered: true,
+          deliveredAt: new Date()
+        },
+        { new: true }
+      );
+
+      resolve({
+        status: "OK",
+        message: "Xác nhận đơn hàng thành công",
+        data: updatedOrder,
+      });
+    } catch (error) {
+      reject({
+        status: 500,
+        message: "Xác nhận đơn hàng thất bại.",
+        error: error,
+      });
+    }
+  });
+};
+
+const adminCancelOrder = (id) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const order = await Order.findById(id);
+
+      if (!order) {
+        resolve({
+          status: "ERR",
+          message: "Không tìm thấy đơn hàng.",
+        });
+        return;
+      }
+
+      if (order.isDelivered) {
+        resolve({
+          status: "ERR",
+          message: "Đơn hàng đã được giao, không thể hủy.",
+        });
+        return;
+      }
+
+      // Hoàn trả số lượng sản phẩm
+      const promises = order.orderItems.map(async (item) => {
+        await Product.findByIdAndUpdate(
+          item.product,
+          {
+            $inc: { countInStock: +item.amount, sold: -item.amount },
+          },
+          { new: true }
+        );
+      });
+
+      await Promise.all(promises);
+
+      const updatedOrder = await Order.findByIdAndUpdate(
+        id,
+        { 
+          isCancelled: true,
+          cancelledAt: new Date()
+        },
+        { new: true }
+      );
+
+      resolve({
+        status: "OK",
+        message: "Hủy đơn hàng thành công",
+        data: updatedOrder,
+      });
+    } catch (error) {
+      reject({
+        status: 500,
+        message: "Hủy đơn hàng thất bại.",
+        error: error,
+      });
+    }
+  });
+};
+
 module.exports = {
   createOrder,
   getAllOrder,
   getDetailsOrder,
   cancelOrder,
+  getAllOrderAdmin,
+  adminConfirmOrder,
+  adminCancelOrder,
 };
