@@ -91,7 +91,6 @@ const createOrder = (newOrder) => {
         });
       }
     } catch (e) {
-      console.error("Error creating order:", e);
       reject({
         status: "ERROR",
         message: "Đã xảy ra lỗi khi tạo đơn hàng",

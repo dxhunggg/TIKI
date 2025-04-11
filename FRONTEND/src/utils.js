@@ -91,7 +91,6 @@ export const convertDataChart = (data, type) => {
       });
     return results;
   } catch (e) {
-    console.error("Error in convertDataChart:", e);
     return [];
   }
 };

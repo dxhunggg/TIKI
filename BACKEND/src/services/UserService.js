@@ -98,7 +98,6 @@ const updateUser = (id, data) => {
         data: updatedUser,
       });
     } catch (error) {
-      console.error("Error in updateUser Service:", error);
       reject({
         status: 500,
         message: "Failed to update user.",

@@ -61,7 +61,6 @@ const createOrder = async (req, res) => {
     const response = await OrderService.createOrder(req.body);
     return res.status(200).json(response);
   } catch (error) {
-    console.error("Lỗi tạo đơn hàng:", error);
     return res.status(error.status || 500).json({
       status: "ERROR",
       message: error.message || "Lỗi máy chủ nội bộ.",

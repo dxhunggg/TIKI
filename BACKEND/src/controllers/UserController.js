@@ -83,8 +83,6 @@ const updateUser = async (req, res) => {
     const response = await UserService.updateUser(userId, data);
     return res.status(200).json(response);
   } catch (error) {
-    console.error("Error in updateUser:", error);
-
     return res.status(error.status || 500).json({
       status: "ERR",
       message: error.message || "Internal Server Error.",
