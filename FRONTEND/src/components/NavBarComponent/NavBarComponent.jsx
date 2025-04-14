@@ -5,11 +5,16 @@ import {
   WrapperLabelText,
   WrapperTextPrice,
   WrapperTextValue,
+  WrapperTypeProduct,
 } from "./style";
 import * as ProductService from "../../services/ProductService";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const NavBarComponent = () => {
   const [typeProducts, setTypeProducts] = useState([]);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const currentType = location.state;
   
   const fetchAllTypeProduct = async () => {
     const res = await ProductService.getAllTypeProduct();
@@ -23,11 +28,24 @@ const NavBarComponent = () => {
   }, []);
 
   const onChange = () => {};
+  
+  const handleTypeClick = (type) => {
+    navigate(`/product/${type}`, { state: type });
+  };
+  
   const renderContent = (type, options) => {
     switch (type) {
       case "text":
         return options.map((option, index) => {
-          return <WrapperTextValue key={index}>{option}</WrapperTextValue>;
+          return (
+            <WrapperTypeProduct 
+              key={index} 
+              active={currentType === option ? 'true' : 'false'}
+              onClick={() => handleTypeClick(option)}
+            >
+              {option}
+            </WrapperTypeProduct>
+          );
         });
       case "checkbox":
         return (

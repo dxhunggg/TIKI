@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 
 const generalAccessToken = async (payload) => {
   const access_token = jwt.sign(payload, process.env.ACCESS_TOKEN, {
-    expiresIn: "12h",
+    expiresIn: "3h",
   });
   return access_token;
 };

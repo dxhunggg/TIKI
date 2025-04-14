@@ -3,7 +3,7 @@ import NavBarComponent from "../../components/NavBarComponent/NavBarComponent";
 import CardComponent from "../../components/CardComponent/CardComponent";
 import { Col, Pagination, Row } from "antd";
 import { WrapperNavBar, WrapperProducts } from "./style";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import * as ProductService from "../../services/ProductService";
 import { useEffect } from "react";
 import Loading from "../../components/LoadingComponent/Loading";
@@ -13,6 +13,7 @@ const TypeProductPage = () => {
   const searchProduct = useSelector((state) => state?.product?.search);
   const searchDebounce = useDebounce(searchProduct, 500);
   const { state } = useLocation();
+  const { type } = useParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [panigate, setPanigate] = useState({
@@ -32,10 +33,11 @@ const TypeProductPage = () => {
     }
   };
   useEffect(() => {
-    if (state) {
-      fetchProductType(state, panigate.page, panigate.limit);
+    const productType = state || type;
+    if (productType) {
+      fetchProductType(productType, panigate.page, panigate.limit);
     }
-  }, [state, panigate.page, panigate.limit]);
+  }, [state, type, panigate.page, panigate.limit]);
   const onChange = (current, pageSize) => {
     setPanigate({ ...panigate, page: current - 1, limit: pageSize });
   };
