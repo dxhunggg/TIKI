@@ -22,6 +22,7 @@ import * as message from "../../components/Message/Message";
 import * as OrderService from "../../services/OrderService";
 import * as PaymentService from "../../services/PaymentService";
 import { PayPalButton } from "react-paypal-button-v2";
+import QRPaymentComponent from "../../components/QRPaymentComponent/QRPaymentComponent";
 
 const PaymentPage = () => {
   const order = useSelector((state) => state.order);
@@ -29,6 +30,7 @@ const PaymentPage = () => {
   const [delivery, setDelivery] = useState("fast");
   const [payment, setPayment] = useState("later_money");
   const [sdkReady, setSdkReady] = useState(false);
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
 
   const [isOpenModalUpdateInfo, setIsOpenModalUpdateInfo] = useState(false);
   const [stateUserDetails, setStateUserDetails] = useState({
@@ -41,6 +43,11 @@ const PaymentPage = () => {
   const dispatch = useDispatch();
 
   const handleAddOrder = () => {
+    if (payment === "qr_code") {
+      setIsQRModalOpen(true);
+      return;
+    }
+
     // Hiển thị chi tiết từng sản phẩm
     order?.orderItemsSelected?.forEach((item, index) => {});
 
@@ -247,6 +254,55 @@ const PaymentPage = () => {
     }
   }, []);
 
+  const handleQRPaymentSuccess = () => {
+    setIsQRModalOpen(false);
+    if (
+      user?.access_token &&
+      order?.orderItemsSelected &&
+      order?.orderItemsSelected.length > 0 &&
+      user?.name &&
+      user?.address &&
+      user?.phone &&
+      priceMemo &&
+      user?.id
+    ) {
+      try {
+        const formattedOrderItems = order?.orderItemsSelected.map((item) => ({
+          name: item.name || "Sản phẩm",
+          amount: item.amount || 1,
+          image: item.image || "",
+          price: item.price || 0,
+          product: item.product,
+          discount: item.discount || 0,
+        }));
+
+        const orderData = {
+          orderItems: formattedOrderItems,
+          fullName: user?.name,
+          address: user?.address,
+          phone: user?.phone,
+          paymentMethod: payment,
+          itemsPrice: priceMemo,
+          shippingPrice: deliveryPriceMemo,
+          totalPrice: totalPriceMemo,
+          user: user?.id,
+          email: user?.email,
+          isPaid: true,
+          paidAt: new Date().toISOString(),
+        };
+
+        mutationAddOrder.mutate({
+          token: user?.access_token,
+          ...orderData,
+        });
+      } catch (error) {
+        message.error(
+          "Đặt hàng thất bại: " + (error.message || "Lỗi không xác định")
+        );
+      }
+    }
+  };
+
   return (
     <div style={{ background: "#f5f5fa", with: "100%", height: "100vh" }}>
       <Loading isLoading={isLoadingAddOrder}>
@@ -282,6 +338,7 @@ const PaymentPage = () => {
                       Thanh toán tiền mặt khi nhận hàng
                     </Radio>
                     <Radio value="paypal"> Thanh toán tiền bằng paypal</Radio>
+                    <Radio value="qr_code"> Thanh toán qua QR Code</Radio>
                   </WrapperRadio>
                 </div>
               </WrapperInfo>
@@ -469,6 +526,12 @@ const PaymentPage = () => {
           </Loading>
         </ModalComponent>
       </Loading>
+      <QRPaymentComponent
+        isOpen={isQRModalOpen}
+        onClose={() => setIsQRModalOpen(false)}
+        totalAmount={totalPriceMemo}
+        onSuccess={handleQRPaymentSuccess}
+      />
     </div>
   );
 };

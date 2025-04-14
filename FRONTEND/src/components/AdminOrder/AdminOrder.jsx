@@ -81,13 +81,12 @@ const AdminOrder = () => {
         onKeyDown={(e) => e.stopPropagation()}
       >
         <InputComponent
-          // ref={searchInput}
-          placeholder={`Search ${dataIndex}`}
+          placeholder={`Tìm kiếm ${dataIndex}`}
           value={selectedKeys[0]}
           onChange={(e) =>
             setSelectedKeys(e.target.value ? [e.target.value] : [])
           }
-          // onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          onPressEnter={() => confirm()}
           style={{
             marginBottom: 8,
             display: "block",
@@ -96,7 +95,7 @@ const AdminOrder = () => {
         <Space>
           <Button
             type="primary"
-            // onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            onClick={() => confirm()}
             icon={<SearchOutlined />}
             size="small"
             style={{
@@ -106,7 +105,10 @@ const AdminOrder = () => {
             Search
           </Button>
           <Button
-            // onClick={() => clearFilters && handleReset(clearFilters)}
+            onClick={() => {
+              clearFilters();
+              confirm();
+            }}
             size="small"
             style={{
               width: 90,
@@ -124,71 +126,72 @@ const AdminOrder = () => {
         }}
       />
     ),
-    onFilter: (value, record) =>
-      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+    onFilter: (value, record) => {
+      if (!record[dataIndex]) return false;
+      return record[dataIndex]
+        .toString()
+        .toLowerCase()
+        .includes(value.toLowerCase());
+    },
     onFilterDropdownOpenChange: (visible) => {
       if (visible) {
         // setTimeout(() => searchInput.current?.select(), 100);
       }
     },
-    // render: (text) =>
-    //   searchedColumn === dataIndex ? (
-    //     // <Highlighter
-    //     //   highlightStyle={{
-    //     //     backgroundColor: '#ffc069',
-    //     //     padding: 0,
-    //     //   }}
-    //     //   searchWords={[searchText]}
-    //     //   autoEscape
-    //     //   textToHighlight={text ? text.toString() : ''}
-    //     // />
-    //   ) : (
-    //     text
-    //   ),
   });
 
   const columns = [
     {
       title: "User name",
       dataIndex: "userName",
-      sorter: (a, b) => a.userName.length - b.userName.length,
+      sorter: (a, b) => a.userName.localeCompare(b.userName),
       ...getColumnSearchProps("userName"),
     },
     {
       title: "Phone",
       dataIndex: "phone",
-      sorter: (a, b) => a.phone.length - b.phone.length,
+      sorter: (a, b) => a.phone.localeCompare(b.phone),
       ...getColumnSearchProps("phone"),
     },
     {
       title: "Address",
       dataIndex: "address",
-      sorter: (a, b) => a.address.length - b.address.length,
+      sorter: (a, b) => a.address.localeCompare(b.address),
       ...getColumnSearchProps("address"),
     },
     {
       title: "Paided",
       dataIndex: "isPaid",
-      sorter: (a, b) => a.isPaid.length - b.isPaid.length,
-      ...getColumnSearchProps("isPaid"),
+      sorter: (a, b) => {
+        const statusOrder = { "Đã thanh toán": 1, "Chưa thanh toán": 2 };
+        return statusOrder[a.isPaid] - statusOrder[b.isPaid];
+      },
     },
     {
       title: "Shipped",
       dataIndex: "isDelivered",
-      sorter: (a, b) => a.isDelivered.length - b.isDelivered.length,
-      ...getColumnSearchProps("isDelivered"),
+      sorter: (a, b) => {
+        const statusOrder = { 
+          "Đã giao hàng": 1, 
+          "Chưa giao hàng": 2, 
+          "Đã hủy bởi người bán hàng": 3 
+        };
+        return statusOrder[a.isDelivered] - statusOrder[b.isDelivered];
+      },
     },
     {
       title: "Payment method",
       dataIndex: "paymentMethod",
-      sorter: (a, b) => a.paymentMethod.length - b.paymentMethod.length,
-      ...getColumnSearchProps("paymentMethod"),
+      sorter: (a, b) => a.paymentMethod.localeCompare(b.paymentMethod),
     },
     {
       title: "Total price",
       dataIndex: "totalPrice",
-      sorter: (a, b) => a.totalPrice.length - b.totalPrice.length,
-      ...getColumnSearchProps("totalPrice"),
+      sorter: (a, b) => {
+        const priceA = parseFloat(a.totalPrice.replace(/[^0-9.-]+/g, ""));
+        const priceB = parseFloat(b.totalPrice.replace(/[^0-9.-]+/g, ""));
+        return priceA - priceB;
+      },
     },
     {
       title: "Action",
@@ -217,14 +220,23 @@ const AdminOrder = () => {
   const dataTable =
     orders?.data?.length &&
     orders?.data?.map((order) => {
+      const renderPaymentMethod = () => {
+        if (order?.paymentMethod === 'qr_code' || order?.paymentMethod === 'paypal') {
+          return orderContant.payment[order?.paymentMethod];
+        }
+        return orderContant.payment[order?.paymentMethod];
+      };
+
       return {
         ...order,
         key: order._id,
         userName: order?.shippingAddress?.fullName,
         phone: order?.shippingAddress?.phone,
         address: order?.shippingAddress?.address,
-        paymentMethod: orderContant.payment[order?.paymentMethod],
-        isPaid: order?.isPaid ? "Đã thanh toán" : "Chưa thanh toán",
+        paymentMethod: renderPaymentMethod(),
+        isPaid: order?.isPaid ? (
+          <span style={{ color: 'green' }}>Đã thanh toán</span>
+        ) : "Chưa thanh toán",
         isDelivered: order?.isCancelled ? "Đã hủy bởi người bán hàng" : (order?.isDelivered ? "Đã giao hàng" : "Chưa giao hàng"),
         totalPrice: convertPrice(order?.totalPrice),
       };

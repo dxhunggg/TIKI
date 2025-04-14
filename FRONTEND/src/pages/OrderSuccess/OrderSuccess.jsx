@@ -7,7 +7,7 @@ import {
   WrapperItemOrderInfo,
   WrapperValue,
 } from "./style";
-
+import { Link } from "react-router-dom";
 import { convertPrice } from "../../utils";
 import Loading from "../../components/LoadingComponent/Loading";
 import { useSelector } from "react-redux";
@@ -41,7 +41,16 @@ const OrderSuccess = () => {
                 <div>
                   <Label>Phương thức thanh toán</Label>
                   <WrapperValue>
-                    {orderContant.payment[state?.payment]}
+                    {state?.payment === 'qr_code' ? (
+                      <div>
+                        <div>{orderContant.payment[state?.payment]}</div>
+                        <div style={{ color: 'green', marginTop: '5px' }}>
+                          Đơn hàng đã được thanh toán
+                        </div>
+                      </div>
+                    ) : (
+                      orderContant.payment[state?.payment]
+                    )}
                   </WrapperValue>
                 </div>
               </WrapperInfo>
@@ -51,10 +60,11 @@ const OrderSuccess = () => {
                     <WrapperItemOrder key={order?.name}>
                       <div
                         style={{
-                          width: "500px",
+                          width: "100%",
                           display: "flex",
                           alignItems: "center",
                           gap: 4,
+                          marginBottom: "10px"
                         }}
                       >
                         <img
@@ -67,7 +77,7 @@ const OrderSuccess = () => {
                         />
                         <div
                           style={{
-                            width: 260,
+                            width: "100%",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
@@ -78,9 +88,9 @@ const OrderSuccess = () => {
                       </div>
                       <div
                         style={{
-                          flex: 1,
+                          width: "100%",
                           display: "flex",
-                          alignItems: "center",
+                          flexDirection: "column",
                           gap: "10px",
                         }}
                       >
@@ -103,6 +113,53 @@ const OrderSuccess = () => {
                 <span style={{ fontSize: "16px", color: "red" }}>
                   Tổng tiền: {convertPrice(state?.totalPriceMemo)}
                 </span>
+              </div>
+              <div style={{ 
+                position: "fixed",
+                bottom: "20px",
+                right: "20px",
+                display: "flex",
+                gap: "20px"
+              }}>
+                <Link to="/" style={{ textDecoration: "none" }}>
+                  <button
+                    style={{
+                      padding: "10px 20px",
+                      backgroundColor: "white",
+                      color: "#1890ff",
+                      border: "1px solid #1890ff",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      fontSize: "16px",
+                      transition: "all 0.3s ease",
+                      ":hover": {
+                        backgroundColor: "#e6f7ff",
+                        borderColor: "#40a9ff"
+                      }
+                    }}
+                  >
+                    Trang chủ
+                  </button>
+                </Link>
+                <Link to="/my-order" style={{ textDecoration: "none" }}>
+                  <button
+                    style={{
+                      padding: "10px 20px",
+                      backgroundColor: "#FF4D4F",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      fontSize: "16px",
+                      transition: "all 0.3s ease",
+                      ":hover": {
+                        backgroundColor: "#CF1322"
+                      }
+                    }}
+                  >
+                    Đến đơn hàng của tôi
+                  </button>
+                </Link>
               </div>
             </WrapperContainer>
           </div>

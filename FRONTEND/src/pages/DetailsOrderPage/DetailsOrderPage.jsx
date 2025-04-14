@@ -99,25 +99,32 @@ const DetailsOrderPage = () => {
               </WrapperContentInfo>
             </WrapperInfoUser>
             <WrapperInfoUser>
-              <WrapperLabel>Hình thức giao hàng</WrapperLabel>
+              <WrapperLabel>Phương thức thanh toán</WrapperLabel>
               <WrapperContentInfo>
-                <div className="delivery-info">
-                  <span className="name-delivery">FAST </span>Giao hàng tiết
-                  kiệm
-                </div>
-                <div className="delivery-fee">
-                  <span>Phí giao hàng: </span> {data?.shippingPrice}
+                <div className="payment-info">
+                  {data?.paymentMethod === 'qr_code' || data?.paymentMethod === 'paypal' ? (
+                    <div>
+                      <div>{orderContant.payment[data?.paymentMethod]}</div>
+                      {data?.isPaid && (
+                        <div style={{ color: 'green', marginTop: '5px' }}>
+                          Đơn hàng đã được thanh toán
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    orderContant.payment[data?.paymentMethod]
+                  )}
                 </div>
               </WrapperContentInfo>
             </WrapperInfoUser>
             <WrapperInfoUser>
-              <WrapperLabel>Hình thức thanh toán</WrapperLabel>
+              <WrapperLabel>Phương thức giao hàng</WrapperLabel>
               <WrapperContentInfo>
-                <div className="payment-info">
-                  {orderContant.payment[data?.paymentMethod]}
-                </div>
-                <div className="status-payment">
-                  {data?.isPaid ? "Đã thanh toán" : "Chưa thanh toán"}
+                <div className="delivery-info">
+                  <span style={{ color: "#ea8500", fontWeight: "bold" }}>
+                    {orderContant.delivery[data?.deliveryMethod]}{" "}
+                  </span>
+                  Giao hàng tiết kiệm
                 </div>
               </WrapperContentInfo>
             </WrapperInfoUser>

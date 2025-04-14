@@ -15,11 +15,11 @@ export const WrapperContainer = styled.div`
 
 export const WrapperItemOrder = styled.div`
   display: flex;
-  align-items: center;
+  flex-direction: column;
   padding: 9px 16px;
   background: #fff;
   margin-top: 12px;
-  justify-content: space-between;
+  width: 100%;
 `;
 
 export const WrapperInfo = styled.div`
@@ -39,7 +39,8 @@ export const WrapperItemOrderInfo = styled.div`
   border-top-left-radius: 6px;
   width: 100%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 `;
 
 export const Label = styled.span`
