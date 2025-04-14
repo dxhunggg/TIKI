@@ -194,6 +194,12 @@ const AdminOrder = () => {
       },
     },
     {
+      title: "Time",
+      dataIndex: "createdAt",
+      sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+      render: (text) => new Date(text).toLocaleString('vi-VN'),
+    },
+    {
       title: "Action",
       dataIndex: "action",
       render: (_, record) => (
@@ -239,6 +245,7 @@ const AdminOrder = () => {
         ) : "Chưa thanh toán",
         isDelivered: order?.isCancelled ? "Đã hủy bởi người bán hàng" : (order?.isDelivered ? "Đã giao hàng" : "Chưa giao hàng"),
         totalPrice: convertPrice(order?.totalPrice),
+        createdAt: order?.createdAt,
       };
     });
 
