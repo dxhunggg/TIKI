@@ -34,20 +34,20 @@ const AdminOrder = () => {
   const handleConfirmOrder = async (orderId) => {
     try {
       await OrderService.adminConfirmOrder(orderId, user?.access_token);
-      message.success('Xác nhận đơn hàng thành công');
-      queryClient.invalidateQueries(['orders']);
+      message.success("Xác nhận đơn hàng thành công");
+      queryClient.invalidateQueries(["orders"]);
     } catch (error) {
-      message.error('Xác nhận đơn hàng thất bại');
+      message.error("Xác nhận đơn hàng thất bại");
     }
   };
 
   const handleCancelOrder = async (orderId) => {
     try {
       await OrderService.adminCancelOrder(orderId, user?.access_token);
-      message.success('Hủy đơn hàng thành công');
-      queryClient.invalidateQueries(['orders']);
+      message.success("Hủy đơn hàng thành công");
+      queryClient.invalidateQueries(["orders"]);
     } catch (error) {
-      message.error('Hủy đơn hàng thất bại');
+      message.error("Hủy đơn hàng thất bại");
     }
   };
 
@@ -171,10 +171,10 @@ const AdminOrder = () => {
       title: "Shipped",
       dataIndex: "isDelivered",
       sorter: (a, b) => {
-        const statusOrder = { 
-          "Đã giao hàng": 1, 
-          "Chưa giao hàng": 2, 
-          "Đã hủy bởi người bán hàng": 3 
+        const statusOrder = {
+          "Đã giao hàng": 1,
+          "Chưa giao hàng": 2,
+          "Đã hủy bởi người bán hàng": 3,
         };
         return statusOrder[a.isDelivered] - statusOrder[b.isDelivered];
       },
@@ -182,7 +182,7 @@ const AdminOrder = () => {
     {
       title: "Payment method",
       dataIndex: "paymentMethod",
-      sorter: (a, b) => a.paymentMethod.localeCompare(b.paymentMethod),
+      sorter: (a, b) => (a.name || "").localeCompare(b.name || "")
     },
     {
       title: "Total price",
@@ -197,24 +197,30 @@ const AdminOrder = () => {
       title: "Time",
       dataIndex: "createdAt",
       sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
-      render: (text) => new Date(text).toLocaleString('vi-VN'),
+      render: (text) => new Date(text).toLocaleString("vi-VN"),
     },
     {
       title: "Action",
       dataIndex: "action",
       render: (_, record) => (
         <Space>
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             onClick={() => handleConfirmOrder(record._id)}
-            disabled={record.isDelivered === "Đã giao hàng" || record.isDelivered === "Đã hủy bởi người bán hàng"}
+            disabled={
+              record.isDelivered === "Đã giao hàng" ||
+              record.isDelivered === "Đã hủy bởi người bán hàng"
+            }
           >
             Xác nhận đơn hàng
           </Button>
-          <Button 
-            danger 
+          <Button
+            danger
             onClick={() => showModal(record)}
-            disabled={record.isDelivered === "Đã giao hàng" || record.isDelivered === "Đã hủy bởi người bán hàng"}
+            disabled={
+              record.isDelivered === "Đã giao hàng" ||
+              record.isDelivered === "Đã hủy bởi người bán hàng"
+            }
           >
             Hủy đơn hàng
           </Button>
@@ -227,7 +233,7 @@ const AdminOrder = () => {
     orders?.data?.length &&
     orders?.data?.map((order) => {
       const renderPaymentMethod = () => {
-        if (order?.paymentMethod === 'qr_code' || order?.paymentMethod === 'paypal') {
+        if (order?.paymentMethod === "qr_code") {
           return orderContant.payment[order?.paymentMethod];
         }
         return orderContant.payment[order?.paymentMethod];
@@ -241,9 +247,15 @@ const AdminOrder = () => {
         address: order?.shippingAddress?.address,
         paymentMethod: renderPaymentMethod(),
         isPaid: order?.isPaid ? (
-          <span style={{ color: 'green' }}>Đã thanh toán</span>
-        ) : "Chưa thanh toán",
-        isDelivered: order?.isCancelled ? "Đã hủy bởi người bán hàng" : (order?.isDelivered ? "Đã giao hàng" : "Chưa giao hàng"),
+          <span style={{ color: "green" }}>Đã thanh toán</span>
+        ) : (
+          "Chưa thanh toán"
+        ),
+        isDelivered: order?.isCancelled
+          ? "Đã hủy bởi người bán hàng"
+          : order?.isDelivered
+          ? "Đã giao hàng"
+          : "Chưa giao hàng",
         totalPrice: convertPrice(order?.totalPrice),
         createdAt: order?.createdAt,
       };

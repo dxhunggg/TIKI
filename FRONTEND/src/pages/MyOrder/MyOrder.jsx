@@ -28,12 +28,11 @@ const MyOrderPage = () => {
     return res.data;
   };
 
-  const queryOrder = useQuery(
-    { queryKey: ["orders"], queryFn: fetchMyOrder },
-    {
-      enabled: state?.id && state?.token,
-    }
-  );
+  const queryOrder = useQuery({
+    queryKey: ["orders"],
+    queryFn: fetchMyOrder,
+    enabled: !!(state?.id && state?.token)
+  });
 
   const { isLoading, data } = queryOrder;
   const handleDetailsOrder = (id) => {
@@ -48,6 +47,8 @@ const MyOrderPage = () => {
     const res = await OrderService.cancelOrder(id, token);
     return res;
   });
+
+  const { data: dataCancel, isPending: isLoadingCancel, isSuccess, isError } = mutation;
 
   const handleCancelOrder = (order) => {
     if (order.isDelivered || order.isCancelled) {
@@ -76,22 +77,15 @@ const MyOrderPage = () => {
     );
   };
 
-  const {
-    isLoading: isLoadingCancel,
-    isSuccess: isSuccessCancel,
-    isError: isErrorCancel,
-    data: dataCancel,
-  } = mutation;
-
   useEffect(() => {
-    if (isSuccessCancel && dataCancel?.status === "OK") {
+    if (isSuccess && dataCancel?.status === "OK") {
       queryOrder.refetch();
-    } else if (isSuccessCancel && dataCancel?.status === "ERR") {
+    } else if (isSuccess && dataCancel?.status === "ERR") {
       message.error(dataCancel?.message);
-    } else if (isErrorCancel) {
+    } else if (isError) {
       message.error("Hủy đơn hàng thất bại");
     }
-  }, [isErrorCancel, isSuccessCancel, dataCancel]);
+  }, [isError, isSuccess, dataCancel]);
   const renderProduct = (data) => {
     return data?.map((order) => {
       return (

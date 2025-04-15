@@ -105,7 +105,7 @@ const OrderPage = () => {
     return res;
   });
 
-  const { isLoading, data } = mutationUpdate;
+  const { isPending: isLoading, data } = mutationUpdate;
 
   const handleCancelUpdate = () => {
     setStateUserDetails({

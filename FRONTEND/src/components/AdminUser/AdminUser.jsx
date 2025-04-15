@@ -48,25 +48,9 @@ const AdminUser = () => {
     const res = UserService.deleteManyUsers(ids, token);
     return res;
   });
-  const {
-    data: dataUpdated,
-    isLoading: isLoadingUpdated = false,
-    isSuccess: isSuccessUpdated,
-    isError: isErrorUpdated,
-  } = mutationUpdate;
-  const {
-    data: dataDeleted,
-    isLoading: isLoadingDeleted = false,
-    isSuccess: isSuccessDeleted,
-    isError: isErrorDeleted,
-  } = mutationDelete;
-  const {
-    data: dataDeletedMany,
-    isLoading: isLoadingDeletedMany = false,
-    isSuccess: isSuccessDeletedMany,
-    isError: isErrorDeletedMany,
-  } = mutationDeleteMany;
-  const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
+  const { isPending: isLoadingUpdate, data: dataUpdate } = mutationUpdate;
+  const { isPending: isLoadingDelete, data: dataDelete } = mutationDelete;
+  const { isPending: isLoadingDeleteMany, data: dataDeleteMany } = mutationDeleteMany;
   const getAllUsers = async () => {
     try {
       const res = await UserService.getAllUser(user?.access_token);
@@ -76,8 +60,8 @@ const AdminUser = () => {
     }
   };
   const queryUser = useQuery({
-    queryKey: ["user"],
-    queryFn: getAllUsers,
+    queryKey: ["users"],
+    queryFn: getAllUsers
   });
   const { isLoading: isLoadingUsers, data: Users } = queryUser;
   const fetchGetUserDetails = async (rowSelected) => {
@@ -92,7 +76,6 @@ const AdminUser = () => {
         avatar: res?.data?.avatar,
       });
     }
-    setIsLoadingUpdate(false);
     return res;
   };
   useEffect(() => {
@@ -103,7 +86,6 @@ const AdminUser = () => {
 
   useEffect(() => {
     if (rowSelected && isOpenDrawer) {
-      setIsLoadingUpdate(true);
       fetchGetUserDetails(rowSelected);
     }
   }, [rowSelected, isOpenDrawer]);
@@ -245,28 +227,28 @@ const AdminUser = () => {
     }) || [];
 
   useEffect(() => {
-    if (isSuccessUpdated && dataUpdated?.status === "OK") {
+    if (isLoadingUpdate && dataUpdate?.status === "OK") {
       message.success("Cập nhật người dùng thành công");
       handleCloseDrawer();
-    } else if (isErrorUpdated) {
+    } else if (isLoadingUpdate) {
       message.error("Cập nhật người dùng thất bại");
     }
-  }, [isSuccessUpdated, isErrorUpdated]);
+  }, [isLoadingUpdate]);
   useEffect(() => {
-    if (isSuccessDeleted && dataDeleted?.status === "OK") {
+    if (isLoadingDelete && dataDelete?.status === "OK") {
       message.success("Xóa người dùng thành công!");
       handleCancelDelete();
-    } else if (isErrorDeleted) {
+    } else if (isLoadingDelete) {
       message.error("Xóa người dùng thất bại!");
     }
-  }, [isSuccessDeleted, isErrorDeleted]);
+  }, [isLoadingDelete]);
   useEffect(() => {
-    if (isSuccessDeletedMany && dataDeletedMany?.status === "OK") {
+    if (isLoadingDeleteMany && dataDeleteMany?.status === "OK") {
       message.success("Xóa người dùng thành công!");
-    } else if (isErrorDeletedMany) {
+    } else if (isLoadingDeleteMany) {
       message.error("Xóa người dùng thất bại!");
     }
-  }, [isSuccessDeletedMany, isErrorDeletedMany]);
+  }, [isLoadingDeleteMany]);
   const handleCancelDelete = () => {
     setIsModalOpenDelete(false);
   };
@@ -314,7 +296,6 @@ const AdminUser = () => {
 
   const handleCloseDrawer = () => {
     setIsOpenDrawer(false);
-    setIsLoadingUpdate(false);
     form.resetFields();
     setStateUserDetails({
       name: "",
@@ -340,11 +321,6 @@ const AdminUser = () => {
     }
     setStateUserDetails({ ...stateUserDetails, avatar: file.preview });
   };
-  useEffect(() => {
-    if (!isOpenDrawer) {
-      setIsLoadingUpdate(false);
-    }
-  }, [isOpenDrawer]);
   return (
     <div>
       <WrapperHeader>Quản lý người dùng</WrapperHeader>
@@ -369,7 +345,7 @@ const AdminUser = () => {
         onClose={handleCloseDrawer}
         width="90%"
       >
-        <Loading isLoading={isLoadingUpdate || isLoadingUpdated}>
+        <Loading isLoading={isLoadingUpdate}>
           <Form
             name="basic"
             labelCol={{
@@ -512,7 +488,7 @@ const AdminUser = () => {
         onCancel={handleCancelDelete}
         onOk={handleDeleteUser}
       >
-        <Loading isLoading={isLoadingDeleted}>
+        <Loading isLoading={isLoadingDelete}>
           <div>Bạn có chắc xóa người dùng này không?</div>
         </Loading>
       </ModalComponent>

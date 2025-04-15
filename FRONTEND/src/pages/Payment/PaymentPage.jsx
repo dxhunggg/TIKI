@@ -20,8 +20,6 @@ import * as UserService from "../../services/UserService";
 import { updateUser } from "../../redux/slides/userSlide";
 import * as message from "../../components/Message/Message";
 import * as OrderService from "../../services/OrderService";
-import * as PaymentService from "../../services/PaymentService";
-import { PayPalButton } from "react-paypal-button-v2";
 import QRPaymentComponent from "../../components/QRPaymentComponent/QRPaymentComponent";
 
 const PaymentPage = () => {
@@ -29,7 +27,6 @@ const PaymentPage = () => {
   const user = useSelector((state) => state.user);
   const [delivery, setDelivery] = useState("fast");
   const [payment, setPayment] = useState("later_money");
-  const [sdkReady, setSdkReady] = useState(false);
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
 
   const [isOpenModalUpdateInfo, setIsOpenModalUpdateInfo] = useState(false);
@@ -47,9 +44,6 @@ const PaymentPage = () => {
       setIsQRModalOpen(true);
       return;
     }
-
-    // Hiển thị chi tiết từng sản phẩm
-    order?.orderItemsSelected?.forEach((item, index) => {});
 
     if (
       user?.access_token &&
@@ -71,7 +65,6 @@ const PaymentPage = () => {
           discount: item.discount || 0,
         }));
 
-        // Data gửi đi
         const orderData = {
           orderItems: formattedOrderItems,
           fullName: user?.name,
@@ -84,7 +77,6 @@ const PaymentPage = () => {
           user: user?.id,
           email: user?.email,
         };
-
         mutationAddOrder.mutate({
           token: user?.access_token,
           ...orderData,
@@ -109,10 +101,10 @@ const PaymentPage = () => {
     const res = OrderService.createOrder({ ...rests }, token);
     return res;
   });
-  const { isLoading, data } = mutationUpdate;
+  const { isPending: isLoading, data } = mutationUpdate;
   const {
     data: dataAdd,
-    isLoading: isLoadingAddOrder,
+    isPending: isLoadingAddOrder,
     isSuccess,
     isError,
   } = mutationAddOrder;
@@ -217,42 +209,6 @@ const PaymentPage = () => {
       Number(priceMemo) - Number(priceDiscountMemo) + Number(deliveryPriceMemo)
     );
   }, [priceMemo, priceDiscountMemo, deliveryPriceMemo]);
-  const onSuccessPaypal = (details, data) => {
-    mutationAddOrder.mutate({
-      token: user?.access_token,
-      orderItems: order?.orderItemsSelected,
-      fullName: user?.name,
-      address: user?.address,
-      phone: user?.phone,
-      paymentMethod: payment,
-      itemsPrice: priceMemo,
-      shippingPrice: deliveryPriceMemo,
-      totalPrice: totalPriceMemo,
-      user: user?.id,
-      isPaid: true,
-      paidAt: details.update_time,
-      // email: user?.email,
-    });
-  };
-  const addPaypalScript = async () => {
-    const { data } = await PaymentService.getConfig();
-    const script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src = `https://www.paypal.com/sdk/js?client-id=${data}`;
-    script.async = true;
-    script.onload = () => {
-      setSdkReady(true);
-    };
-    document.body.appendChild(script);
-  };
-
-  useEffect(() => {
-    if (!window.paypal) {
-      addPaypalScript();
-    } else {
-      setSdkReady(true);
-    }
-  }, []);
 
   const handleQRPaymentSuccess = () => {
     setIsQRModalOpen(false);
@@ -290,7 +246,6 @@ const PaymentPage = () => {
           isPaid: true,
           paidAt: new Date().toISOString(),
         };
-
         mutationAddOrder.mutate({
           token: user?.access_token,
           ...orderData,
@@ -337,7 +292,6 @@ const PaymentPage = () => {
                       {" "}
                       Thanh toán tiền mặt khi nhận hàng
                     </Radio>
-                    <Radio value="paypal"> Thanh toán tiền bằng paypal</Radio>
                     <Radio value="qr_code"> Thanh toán qua QR Code</Radio>
                   </WrapperRadio>
                 </div>
@@ -437,35 +391,23 @@ const PaymentPage = () => {
                   </span>
                 </WrapperTotal>
               </div>
-              {payment === "paypal" && sdkReady ? (
-                <div style={{ width: "320px" }}>
-                  <PayPalButton
-                    amount={Math.round(totalPriceMemo / 30000)}
-                    onSuccess={onSuccessPaypal}
-                    onError={() => {
-                      alert("Error");
-                    }}
-                  />
-                </div>
-              ) : (
-                <ButtonComponent
-                  onClick={() => handleAddOrder()}
-                  size={40}
-                  styleButton={{
-                    background: "rgb(255, 57, 69)",
-                    height: "48px",
-                    width: "320px",
-                    border: "none",
-                    borderRadius: "4px",
-                  }}
-                  textButton={"Đặt hàng"}
-                  styleTextButton={{
-                    color: "#fff",
-                    fontSize: "15px",
-                    fontWeight: "700",
-                  }}
-                />
-              )}
+              <ButtonComponent
+                onClick={() => handleAddOrder()}
+                size={40}
+                styleButton={{
+                  background: "rgb(255, 57, 69)",
+                  height: "48px",
+                  width: "320px",
+                  border: "none",
+                  borderRadius: "4px",
+                }}
+                textButton={"Đặt hàng"}
+                styleTextButton={{
+                  color: "#fff",
+                  fontSize: "15px",
+                  fontWeight: "700",
+                }}
+              />
             </WrapperRight>
           </div>
         </div>

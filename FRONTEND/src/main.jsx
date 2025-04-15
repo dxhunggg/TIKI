@@ -9,7 +9,15 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { PersistGate } from "redux-persist/integration/react";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 phút
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 root.render(
   <QueryClientProvider client={queryClient}>
     <Provider store={store}>

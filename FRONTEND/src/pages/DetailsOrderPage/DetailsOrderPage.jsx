@@ -32,12 +32,11 @@ const DetailsOrderPage = () => {
     return res.data;
   };
 
-  const queryOrder = useQuery(
-    { queryKey: ["orders-details"], queryFn: fetchDetailsOrder },
-    {
-      enabled: id,
-    }
-  );
+  const queryOrder = useQuery({
+    queryKey: ["orders-details"],
+    queryFn: fetchDetailsOrder,
+    enabled: id
+  });
   const { isLoading, data } = queryOrder;
 
   useEffect(() => {
@@ -102,17 +101,11 @@ const DetailsOrderPage = () => {
               <WrapperLabel>Phương thức thanh toán</WrapperLabel>
               <WrapperContentInfo>
                 <div className="payment-info">
-                  {data?.paymentMethod === 'qr_code' || data?.paymentMethod === 'paypal' ? (
-                    <div>
-                      <div>{orderContant.payment[data?.paymentMethod]}</div>
-                      {data?.isPaid && (
-                        <div style={{ color: 'green', marginTop: '5px' }}>
-                          Đơn hàng đã được thanh toán
-                        </div>
-                      )}
+                  {orderContant.payment[data?.paymentMethod]}
+                  {data?.paymentMethod === 'qr_code' && data?.isPaid && (
+                    <div style={{ color: 'green', marginTop: '5px' }}>
+                      Đơn hàng đã được thanh toán
                     </div>
-                  ) : (
-                    orderContant.payment[data?.paymentMethod]
                   )}
                 </div>
               </WrapperContentInfo>

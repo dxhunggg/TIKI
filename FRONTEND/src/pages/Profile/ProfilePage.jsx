@@ -31,7 +31,7 @@ const ProfilePage = () => {
     return UserService.updateUser(id, access_token, rests);
   });
   const dispatch = useDispatch();
-  const { data, isLoading = false, isSuccess, isError } = mutation;
+  const { data, isPending: isLoading, isSuccess, isError } = mutation;
   useEffect(() => {
     if (isSuccess && data) {
       message.success("Cập nhật thông tin thành công!");

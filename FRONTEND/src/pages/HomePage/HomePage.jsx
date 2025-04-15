@@ -34,7 +34,9 @@ const HomePage = () => {
     isLoading,
     data: products,
     isPreviousData,
-  } = useQuery(["products", limit, searchDebounce], fetchProductAll, {
+  } = useQuery({
+    queryKey: ["products", limit, searchDebounce],
+    queryFn: fetchProductAll,
     retry: 3,
     retryDelay: 1000,
     keepPreviousData: true,

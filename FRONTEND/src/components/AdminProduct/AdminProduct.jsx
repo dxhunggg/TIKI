@@ -78,27 +78,27 @@ const AdminProduct = () => {
     return res;
   });
 
-  const { data, isLoading = false, isSuccess, isError } = mutation;
+  const { data, isPending: isLoading, isSuccess, isError } = mutation;
   const {
     data: dataUpdated,
-    isLoading: isLoadingUpdated = false,
+    isPending: isLoadingUpdated = false,
     isSuccess: isSuccessUpdated,
     isError: isErrorUpdated,
   } = mutationUpdate;
   const {
     data: dataDeleted,
-    isLoading: isLoadingDeleted = false,
+    isPending: isLoadingDeleted = false,
     isSuccess: isSuccessDeleted,
     isError: isErrorDeleted,
   } = mutationDelete;
   const {
     data: dataDeletedMany,
-    isLoading: isLoadingDeletedMany = false,
+    isPending: isLoadingDeletedMany = false,
     isSuccess: isSuccessDeletedMany,
     isError: isErrorDeletedMany,
   } = mutationDeleteMany;
 
-  const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
+  const [isPendingUpdate, setIsPendingUpdate] = useState(false);
   const getAllProducts = async () => {
     const res = await ProductService.getAllProduct();
     return res;
@@ -109,11 +109,12 @@ const AdminProduct = () => {
   };
   const queryProduct = useQuery({
     queryKey: ["products"],
-    queryFn: getAllProducts,
+    queryFn: getAllProducts
   });
+
   const typeProduct = useQuery({
-    queryKey: ["type-product"],
-    queryFn: fetchAllTypeProduct,
+    queryKey: ["type-products"],
+    queryFn: fetchAllTypeProduct
   });
   const { isLoading: isLoadingProducts, data: products } = queryProduct;
   const fetchGetProductDetails = async (rowSelected) => {
@@ -130,7 +131,7 @@ const AdminProduct = () => {
         discount: res?.data?.discount,
       });
     }
-    setIsLoadingUpdate(false);
+    setIsPendingUpdate(false);
     return res;
   };
   useEffect(() => {
@@ -143,7 +144,7 @@ const AdminProduct = () => {
 
   useEffect(() => {
     if (rowSelected && isOpenDrawer) {
-      setIsLoadingUpdate(true);
+      setIsPendingUpdate(true);
       fetchGetProductDetails(rowSelected);
     }
   }, [rowSelected, isOpenDrawer]);
@@ -450,7 +451,7 @@ const AdminProduct = () => {
 
   const handleCloseDrawer = () => {
     setIsOpenDrawer(false);
-    setIsLoadingUpdate(false);
+    setIsPendingUpdate(false);
     form.resetFields();
     setStateProductDetails({
       name: "",
@@ -475,7 +476,7 @@ const AdminProduct = () => {
 
   useEffect(() => {
     if (!isOpenDrawer) {
-      setIsLoadingUpdate(false);
+      setIsPendingUpdate(false);
     }
   }, [isOpenDrawer]);
 
@@ -719,7 +720,7 @@ const AdminProduct = () => {
         onClose={handleCloseDrawer}
         width="90%"
       >
-        <Loading isLoading={isLoadingUpdate || isLoadingUpdated}>
+        <Loading isLoading={isPendingUpdate || isLoadingUpdated}>
           <Form
             name="basic"
             labelCol={{

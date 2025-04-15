@@ -34,7 +34,7 @@ const SignUpPage = () => {
     setConfirmPassword(value);
   };
   const mutation = useMutationHooks((data) => UserService.signupUser(data));
-  const { data, isLoading = false, isSuccess, isError } = mutation;
+  const { data, isPending: isLoading, isSuccess, isError } = mutation;
   useEffect(() => {
     if (isSuccess) {
       message.success("Register successfully!");

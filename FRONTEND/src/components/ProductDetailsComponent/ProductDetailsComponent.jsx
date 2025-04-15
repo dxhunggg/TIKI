@@ -47,13 +47,10 @@ const ProductDetailsComponent = ({ idProduct }) => {
       return res.data;
     }
   };
-  const { isLoading, data: productDetails } = useQuery(
-    ["products-details", idProduct],
-    fetchGetProductDetails,
-    {
-      enabled: !!idProduct,
-    }
-  );
+  const { isLoading, data: productDetails } = useQuery({
+    queryKey: ["product-details", idProduct],
+    queryFn: fetchGetProductDetails
+  });
   useEffect(() => {
     initFacebookSDK();
   }, []);
