@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Badge, Button, Col, Popover, Row } from "antd";
+import { Badge, Button, Col, Popover, Row, Space } from "antd";
 import {
   WrapperContentPopUp,
   WrapperHeader,
@@ -12,6 +12,7 @@ import {
   UserOutlined,
   CaretDownOutlined,
   ShoppingCartOutlined,
+  BellOutlined,
 } from "@ant-design/icons";
 import ButtonInputSearch from "../ButtonInputSearch/ButtonInputSearch";
 import { useNavigate } from "react-router-dom";
@@ -39,6 +40,7 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [isOpenPopup, setIsOpenPopup] = useState(false);
+  const [isOpenNotification, setIsOpenNotification] = useState(false);
   const order = useSelector((state) => state.order);
   useEffect(() => {
     setLoading(true);
@@ -64,6 +66,14 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
         <WrapperContentPopUp onClick={() => handleClickNavigate()}>
           Đăng xuất
         </WrapperContentPopUp>
+      </div>
+    </div>
+  );
+  const notificationContent = (
+    <div>
+      <div style={{ padding: '8px' }}>
+        <div>Chào mừng bạn đến với Bách Hóa Xanh</div>
+        <div>Bạn có thông báo mới</div>
       </div>
     </div>
   );
@@ -120,64 +130,91 @@ const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
 
         <Col
           span={6}
-          style={{ display: "flex", gap: "54px", alignItems: "center" }}
+          style={{ display: "flex", justifyContent: "flex-end" }}
         >
-          <Loading isLoading={loading}>
-            <WrapperHeaderAccount>
-              {userAvatar ? (
-                <img
-                  src={userAvatar}
-                  alt="avatar"
-                  style={{ height: "30px", width: "30px", borderRadius: "50%" }}
-                />
-              ) : (
-                <UserOutlined style={{ fontSize: "30px", color: "#fff" }} />
-              )}
-              {user?.access_token ? (
-                <>
-                  <Popover content={content} trigger="click" open={isOpenPopup}>
-                    <div
-                      style={{
-                        cursor: "pointer",
-                        maxWidth: 100,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                      onClick={() => setIsOpenPopup((prev) => !prev)}
-                    >
-                      {userName.length ? userName : user.email}
-                    </div>
-                  </Popover>
-                </>
-              ) : (
-                <div
-                  onClick={handleNavigateLogin}
-                  style={{ cursor: "pointer" }}
-                >
-                  <WrapperTextHeaderSmall>
-                    Đăng nhập/Đăng kí
-                  </WrapperTextHeaderSmall>
-                  <div>
-                    <WrapperTextHeaderSmall>Tài khoản</WrapperTextHeaderSmall>
-                    <CaretDownOutlined />
-                  </div>
-                </div>
-              )}
-            </WrapperHeaderAccount>
-          </Loading>
-          {!isHiddenCart && (
-            <div
-              onClick={() => navigate("/order")}
-              style={{ cursor: "pointer" }}
+          <Space size={40} align="center">
+            {!isHiddenCart && (
+              <div
+                onClick={() => navigate("/order")}
+                style={{ 
+                  cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center"
+                }}
+              >
+                <Badge count={order?.orderItems?.length} size="small">
+                  <ShoppingCartOutlined
+                    style={{ fontSize: "30px", color: "#fff" }}
+                  />
+                </Badge>
+                <WrapperTextHeaderSmall>Giỏ hàng</WrapperTextHeaderSmall>
+              </div>
+            )}
+            
+            <Popover 
+              content={notificationContent} 
+              trigger="click" 
+              open={isOpenNotification}
+              onOpenChange={(visible) => setIsOpenNotification(visible)}
             >
-              <Badge count={order?.orderItems?.length} size="small">
-                <ShoppingCartOutlined
-                  style={{ fontSize: "30px", color: "#fff" }}
-                />
-              </Badge>
-              <WrapperTextHeaderSmall>Giỏ hàng</WrapperTextHeaderSmall>
-            </div>
-          )}
+              <div style={{ 
+                cursor: "pointer",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center"
+              }}>
+                <Badge count={5} size="small">
+                  <BellOutlined style={{ fontSize: "30px", color: "#fff" }} />
+                </Badge>
+                <WrapperTextHeaderSmall>Thông báo</WrapperTextHeaderSmall>
+              </div>
+            </Popover>
+
+            <Loading isLoading={loading}>
+              <WrapperHeaderAccount>
+                {userAvatar ? (
+                  <img
+                    src={userAvatar}
+                    alt="avatar"
+                    style={{ height: "30px", width: "30px", borderRadius: "50%" }}
+                  />
+                ) : (
+                  <UserOutlined style={{ fontSize: "30px", color: "#fff" }} />
+                )}
+                {user?.access_token ? (
+                  <>
+                    <Popover content={content} trigger="click" open={isOpenPopup}>
+                      <div
+                        style={{
+                          cursor: "pointer",
+                          maxWidth: 100,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                        onClick={() => setIsOpenPopup((prev) => !prev)}
+                      >
+                        {userName.length ? userName : user.email}
+                      </div>
+                    </Popover>
+                  </>
+                ) : (
+                  <div
+                    onClick={handleNavigateLogin}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <WrapperTextHeaderSmall>
+                      Đăng nhập/Đăng kí
+                    </WrapperTextHeaderSmall>
+                    <div>
+                      <WrapperTextHeaderSmall>Tài khoản</WrapperTextHeaderSmall>
+                      <CaretDownOutlined />
+                    </div>
+                  </div>
+                )}
+              </WrapperHeaderAccount>
+            </Loading>
+          </Space>
         </Col>
       </WrapperHeader>
     </div>
