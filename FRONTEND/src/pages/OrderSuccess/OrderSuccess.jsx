@@ -34,6 +34,12 @@ const OrderSuccess = () => {
                       {orderContant.delivery[state?.delivery]}{" "}
                     </span>
                     Giao hàng tiết kiệm
+                    <div style={{ marginTop: "10px" }}>
+                      <span style={{ color: "#ea8500", fontWeight: "bold" }}>
+                        Thời gian giao hàng dự kiến:{" "}
+                      </span>
+                      {new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString("vi-VN")}
+                    </div>
                   </WrapperValue>
                 </div>
               </WrapperInfo>

@@ -19,7 +19,6 @@ import * as message from "../../components/Message/Message";
 
 const MyOrderPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const user = useSelector((state) => state.user);
 
   const fetchMyOrder = async () => {
@@ -30,7 +29,7 @@ const MyOrderPage = () => {
       user?.id,
       user?.access_token
     );
-    return res.data;
+    return res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   };
 
   const queryOrder = useQuery({
@@ -174,6 +173,19 @@ const MyOrderPage = () => {
                             ? "Đã giao hàng"
                             : "Chưa giao hàng"
                         }`}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: "rgb(255, 66, 78)" }}>
+                          Thời gian giao hàng dự kiến:{" "}
+                        </span>
+                        <span
+                          style={{
+                            color: "rgb(90, 32, 193)",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {new Date(new Date(order?.createdAt).getTime() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString("vi-VN")}
+                        </span>
                       </div>
                       <div>
                         <span style={{ color: "rgb(255, 66, 78)" }}>

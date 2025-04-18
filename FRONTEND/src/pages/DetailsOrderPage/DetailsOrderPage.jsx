@@ -119,6 +119,12 @@ const DetailsOrderPage = () => {
                   </span>
                   Giao hàng tiết kiệm
                 </div>
+                <div style={{ marginTop: "10px" }}>
+                  <span style={{ color: "#ea8500", fontWeight: "bold" }}>
+                    Thời gian giao hàng dự kiến:{" "}
+                  </span>
+                  {new Date(new Date(data?.createdAt).getTime() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString("vi-VN")}
+                </div>
               </WrapperContentInfo>
             </WrapperInfoUser>
           </WrapperHeaderUser>

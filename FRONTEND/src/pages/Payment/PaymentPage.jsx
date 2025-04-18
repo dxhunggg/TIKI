@@ -282,6 +282,9 @@ const PaymentPage = () => {
                       Giao hàng tiết kiệm
                     </Radio>
                   </WrapperRadio>
+                  <div style={{ marginTop: "10px", color: "#ea8500", fontWeight: "bold" }}>
+                    Thời gian giao hàng dự kiến: {new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString("vi-VN")}
+                  </div>
                 </div>
               </WrapperInfo>
               <WrapperInfo>
